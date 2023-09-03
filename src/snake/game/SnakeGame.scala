@@ -2,151 +2,143 @@
 // scalastyle:off
 
 package snake.game
+import scala.math._
 
+import processing.core._
 import java.awt.event
 import processing.core.{PApplet, PConstants}
 import processing.event.KeyEvent
 
 import java.awt.event.KeyEvent._
-import engine.GameBase
-import engine.graphics.{Color, Point, Rectangle}
-import snake.logic.{Apple, CellType, Dimensions, Direction, East, Empty, GameLogic, North, SnakeBody, SnakeHead, South, West, Point => GridPoint}
-import snake.game.SnakeGame._
+import engine.graphics.{Color, Point}
 import engine.graphics.Color._
 import engine.random.ScalaRandomGen
 
-class SnakeGame extends GameBase {
 
-  var gameLogic = new GameLogic(new ScalaRandomGen(),GameLogic.DefaultGridDims)
-  val updateTimer = new UpdateTimer(GameLogic.FramesPerSecond.toFloat)
-  val gridDimensions : Dimensions =  gameLogic.gridDims
-  val widthInPixels: Int = (GameLogic.DrawSizeFactor * WidthCellInPixels * gridDimensions.width).ceil.toInt
-  val heightInPixels: Int = (GameLogic.DrawSizeFactor *  HeightCellInPixels * gridDimensions.height).ceil.toInt
-  val screenArea: Rectangle = Rectangle(Point(0, 0), widthInPixels.toFloat, heightInPixels.toFloat)
+class SnakeGame extends PApplet{
+  val ScreenSize = 800
+  var gameState: GameState = _
 
-  // this function is wrongly named draw by processing (is called on each update next to drawing)
+  var PlayerX = 400
+  var PlayerY = 400
+  var PlayerAngle = 0
+  var map: Array[Array[Int]] = Array(
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    Array(1, 0, 1, 0, 0, 0, 0, 1, 0, 1),
+    Array(1, 0, 1, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 1, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+  )
+
+
+  // KEYS//
+  var UPPRESS: Boolean = false
+  var DOWNPRESS: Boolean = false
+  var LEFTPRESS: Boolean = false
+  var RIGHTPRESS: Boolean = false
+  var DPRESS: Boolean = false
+  var APRESS: Boolean = false
+
+  // KEYS //
+  def Draw2DMap(): Unit = {
+    for (i <-  map.indices) {
+      for (j <- map.indices) {
+        if (map(i)(j) == 1) {
+          drawBlock((ScreenSize/map.length)*j, (ScreenSize/map.length)*i)
+        }
+      }
+    }
+  }
+
+  def drawBlock(x: Int, y: Int): Unit = {
+    fill(255, 208, 160)
+    rect(x, y, 80, 80)
+  }
+
+  def drawPlayer(x: Int , y: Int): Unit = {
+    fill(0, 0, 255)
+    rect(x, y, 10, 10)
+  }
+
+  def drawRays(): Unit = {
+    var x = (cos(toRadians(PlayerAngle)) * 100).toInt
+    var y = (sin(toRadians(PlayerAngle)) * 100).toInt
+
+    println(x + " " + y)
+    line(PlayerX + 30, PlayerY + 30, PlayerX + 12, PlayerY + 12)
+    stroke(255,0,0)
+    line(PlayerX + x, PlayerY + y, PlayerX + 5, PlayerY + 5)
+
+
+  }
+
+  def update(): Unit = {
+    if (UPPRESS) PlayerY -= 1
+    if (DOWNPRESS) PlayerY += 1
+    if (LEFTPRESS) PlayerX -= 1
+    if (RIGHTPRESS) PlayerX += 1
+    if (DPRESS) PlayerAngle += 5
+    if (APRESS) PlayerAngle -= 5
+  }
   override def draw(): Unit = {
-    updateState()
-    drawGrid()
-    if (gameLogic.gameOver) drawGameOverScreen()
-  }
-
-  def drawGameOverScreen(): Unit = {
-    setFillColor(Red)
-    drawTextCentered("GAME OVER!", 20, screenArea.center)
-  }
-
-  def drawGrid(): Unit = {
-
-    val widthPerCell = screenArea.width / gridDimensions.width
-    val heightPerCell = screenArea.height / gridDimensions.height
-
-    def getCell(p : GridPoint): Rectangle = {
-      val leftUp = Point(screenArea.left + p.x * widthPerCell,
-        screenArea.top + p.y * heightPerCell)
-      Rectangle(leftUp, widthPerCell, heightPerCell)
-    }
-
-    def getTriangleForDirection(dir: Direction, area: Rectangle) = {
-      dir match {
-        case West()   => area.trianglePointingLeft
-        case North()  => area.trianglePointingUp
-        case East()   => area.trianglePointingRight
-        case South()  => area.trianglePointingDown
-      }
-    }
-
-    def drawCell(area: Rectangle, cell: CellType): Unit = {
-      cell match {
-        case SnakeHead(direction) =>
-          setFillColor(Color.LawnGreen)
-          drawTriangle(getTriangleForDirection(direction, area))
-        case SnakeBody(p) =>
-          val color = Color.LawnGreen.interpolate(p,Color.DarkGreen)
-          setFillColor(color)
-          drawRectangle(area)
-        case Apple()  =>
-          setFillColor(Color.Red)
-          drawEllipse(area)
-        case Empty() => ()
-      }
-    }
-
-    setFillColor(White)
-    drawRectangle(screenArea)
-
-    for (p <- gridDimensions.allPointsInside) {
-      drawCell(getCell(p), gameLogic.getCellType(p))
-    }
+    background(255)
+    Draw2DMap()
+    drawPlayer(PlayerX, PlayerY)
+    drawRays()
+    update()
+    //gameState.render()
 
   }
 
-  /** Method that calls handlers for different key press events.
-   * You may add extra functionality for other keys here.
-   * See [[event.KeyEvent]] for all defined keycodes.
-   *
-   * @param event The key press event to handle
-   */
+  override def setup(): Unit = {
+    gameState = new GameState()
+  }
+
+  override def settings(): Unit = {
+    size(ScreenSize, ScreenSize)
+  }
+
   override def keyPressed(event: KeyEvent): Unit = {
 
-    def changeDir(dir: Direction): Unit =
-      gameLogic.changeDir(dir)
-
     event.getKeyCode match {
-      case VK_UP    => changeDir(North())
-      case VK_DOWN  => changeDir(South())
-      case VK_LEFT  => changeDir(West())
-      case VK_RIGHT => changeDir(East())
-      case VK_R     => gameLogic.setReverse(true)
-      case _        => ()
+      case VK_UP => UPPRESS = true
+      case VK_DOWN => DOWNPRESS = true
+      case VK_LEFT => LEFTPRESS = true
+      case VK_RIGHT => RIGHTPRESS = true
+      case VK_D => DPRESS = true
+      case VK_A => APRESS = true
+      case _ => ()
     }
 
   }
 
   override def keyReleased(event: KeyEvent): Unit = {
     event.getKeyCode match {
-      case VK_R => gameLogic.setReverse(false)
-      case _    => ()
+      case VK_UP => UPPRESS =false
+      case VK_DOWN => DOWNPRESS =false
+      case VK_LEFT => LEFTPRESS =false
+      case VK_RIGHT => RIGHTPRESS =false
+      case VK_D => DPRESS =false
+      case VK_A => APRESS =false
+      case _ => ()
     }
   }
-
-  override def settings(): Unit = {
-    pixelDensity(displayDensity())
-    // If line below gives errors try size(widthInPixels, heightInPixels, PConstants.P2D)
-    size(widthInPixels, heightInPixels)
-  }
-
-  override def setup(): Unit = {
-    // Fonts are loaded lazily, so when we call text()
-    // for the first time, there is significant lag.
-    // This prevents it from happening during gameplay.
-    text("", 0, 0)
-    // This should be called last, since the game
-    // clock is officially ticking at this point
-    updateTimer.init()
-  }
-
-
-  def updateState(): Unit = {
-    if (updateTimer.timeForNextFrame()) {
-      gameLogic.step()
-      updateTimer.advanceFrame()
-    }
-  }
-
 }
+
+case class Pixel(x: Float, y: Float, color: Int)
+
 
 
 object SnakeGame {
-
-
-  val WidthCellInPixels: Double = 20 * GameLogic.DrawSizeFactor
-  val HeightCellInPixels: Double = WidthCellInPixels
 
   def main(args: Array[String]): Unit = {
     // This is needed for Processing, using the name
     // of the class in a string is not very beautiful...
     PApplet.main("snake.game.SnakeGame")
   }
-
 }
