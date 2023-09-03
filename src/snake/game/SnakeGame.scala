@@ -71,56 +71,57 @@ class SnakeGame extends PApplet{
 
     val distance : Double = 0
     val BoxSize = 80
-    var Hit : Boolean = true
     val Dirx : Double = cos(toRadians(PlayerAngle)) * BoxSize
     val Diry : Double = sin(toRadians(PlayerAngle)) * BoxSize
 
     stroke(255,0,0)
     line(PlayerX + (Dirx * 2).toInt, PlayerY + (Diry * 2).toInt, PlayerX + 5, PlayerY + 5)
-    var MapX: Int = (PlayerX / BoxSize)*BoxSize
-    var MapY: Int = (PlayerY / BoxSize)*BoxSize
-    var RayDirectionX: Double = Dirx
-    var RayDirectionY: Double = Diry
-    var DistX : Double = abs(1 / RayDirectionX)
-    var DistY : Double = abs(1 / RayDirectionY)
-    var SideDistX :Double = 0
-    var SideDistY :Double = 0
-    var StepX : Int = 0
-    var StepY : Int = 0
+    for(i <- 0 until 100 by 10) {
+      var Hit : Boolean = true
+      var MapX: Int = (PlayerX / BoxSize) * BoxSize
+      var MapY: Int = (PlayerY / BoxSize) * BoxSize
+      val RayDirectionX: Double = Dirx - 50 + i
+      val RayDirectionY: Double = Diry - 50 + i
+      var DistX: Double = abs(1 / RayDirectionX)
+      var DistY: Double = abs(1 / RayDirectionY)
+      var SideDistX: Double = 0
+      var SideDistY: Double = 0
+      var StepX: Int = 0
+      var StepY: Int = 0
+      if (DistX.isInfinite) DistX = 99999
+      if (DistY.isInfinite) DistY = 99999
 
-    if(DistX.isInfinite) DistX = 99999
-    if(DistY.isInfinite) DistY = 99999
-
-    if (RayDirectionX < 0){
-      StepX = -BoxSize
-      SideDistX = (PlayerX - MapX) * DistX
-    }
-    else{
-      StepX = BoxSize
-      SideDistX = (MapX - PlayerX + 1) * DistX
-    }
-    if (RayDirectionY < 0){
-      StepY = -BoxSize
-      SideDistY = (PlayerY - MapY) * DistY
-    }
-    else {
-      StepY = BoxSize
-      SideDistY = (MapY - PlayerY + 1) * DistY
-    }
-    while (Hit){
-      println(MapX + " " + MapY)
-      if (SideDistX < SideDistY){
-        SideDistX += DistX
-        MapX += StepX
+      if (RayDirectionX < 0) {
+        StepX = -BoxSize
+        SideDistX = (PlayerX - MapX) / BoxSize * DistX
       }
       else {
-        SideDistY += DistY
-        MapY += StepY
+        StepX = BoxSize
+        SideDistX = (MapX - PlayerX) / BoxSize * DistX
       }
-      if (map(MapX/BoxSize)(MapY/BoxSize) > 0) Hit = false
+      if (RayDirectionY < 0) {
+        StepY = -BoxSize
+        SideDistY = (PlayerY - MapY) / BoxSize * DistY
+      }
+      else {
+        StepY = BoxSize
+        SideDistY = (MapY - PlayerY) / BoxSize * DistY
+      }
+
+      while (Hit) {
+
+        if (SideDistX < SideDistY) {
+          SideDistX += DistX
+          MapX += StepX
+        }
+        else {
+          SideDistY += DistY
+          MapY += StepY
+        }
+        if (map(MapX / BoxSize)(MapY / BoxSize) > 0) Hit = false
+      }
+      line(MapX, MapY, PlayerX + 5, PlayerY + 5)
     }
-    line(MapX, MapY, PlayerX + 5, PlayerY + 5)
-    stroke(0, 0, 255)
   }
 
 
