@@ -30,7 +30,7 @@ class SnakeGame extends PApplet{
     Array(1, 0, 1, 0, 0, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 0, 0, 0, 0, 1, 0, 1),
     Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
@@ -77,119 +77,58 @@ class SnakeGame extends PApplet{
   }
 
   def drawRays(): Unit = {
-    var Done : Boolean = false
-    val Rays : Int = 800
-    for (i <- 0 until Rays){
-      var cameraX: Double = (2*i) / (Rays-1).toDouble
-      var rayDirX: Double = DirX + PlaneX*cameraX
-      var rayDirY: Double = DirY + PlaneY*cameraX
-      println(rayDirX + " " + rayDirY)
 
-      var MapX: Int = PlayerX.toInt/BoxSize
-      var MapY: Int = PlayerY.toInt/BoxSize
+    var NumRays = 100
+    var FOV = 0
+    var RayAngle = PlayerAngle - FOV/2
+    val BoxSize = 80
+    for (i <- 0 until NumRays){
+      var RayDirX : Double = cos(toRadians(RayAngle))
+      var RayDirY : Double = sin(toRadians(RayAngle))
+      var CurrentBoxX : Int = PlayerX.toInt/BoxSize
+      var CurrentBoxY : Int = PlayerY.toInt/BoxSize
+      var CurrentX: Double = PlayerX/BoxSize
+      var CurrentY: Double = PlayerY/BoxSize
 
-      var sideDistX : Double = 0
-      var sideDistY : Double = 0
 
-      var deltaDistX : Double = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
-      var deltaDistY : Double = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
-      var perpWallDist : Double = 0
+      var DistX: Double = if (RayDirX < 0) -CurrentBoxX + CurrentX else CurrentBoxX - CurrentX
+      var DistY: Double = if (RayDirY < 0) -CurrentBoxY + CurrentY else CurrentBoxY - CurrentY
 
-      var StepX : Int = 0
-      var StepY : Int = 0
+      println(DistX + " " + DistY)
 
-      var hit : Int = 0
-      var side : Int = 0
+      var DistTimeTakenX = DistX/RayDirX
+      var DistTimeTakenY = DistY/RayDirY
 
-      if(rayDirX < 0){
-        StepX = -1
-        sideDistX = (MapX - PlayerX.toDouble/80) * deltaDistX
+      if (DistTimeTakenX < DistTimeTakenY){
+        CurrentX += DistTimeTakenX
       }
       else{
-        StepX = 1;
-        sideDistX = (MapX + 1.0 - PlayerX.toDouble/80) * deltaDistX;
-      }
-      if (rayDirY < 0) {
-        StepY = -1;
-        sideDistY = (PlayerY.toDouble/80 - MapY) * deltaDistY;
-      }
-      else {
-        StepY = 1;
-        sideDistY = (MapY + 1.0 - PlayerY.toDouble/80) * deltaDistY;
-      }
-      while (hit == 0) {
-        //jump to next map square, either in x-direction, or in y-direction
-        if (sideDistX < sideDistY) {
-          sideDistX += deltaDistX;
-          MapX += StepX;
-          side = 0;
-        }
-        else {
-          sideDistY += deltaDistY;
-          MapY += StepY;
-          side = 1;
-        }
-        //Check if ray has hit a wall
-        if (map(MapX)(MapY) > 0) hit = 1;
+        CurrentY += DistTimeTakenY
       }
 
-      if (side == 0) perpWallDist = sideDistX - deltaDistX
-      else perpWallDist = sideDistY - deltaDistY
-      //Calculate height of line to draw on screen
-      var lineHeight : Int = ((ScreenSize / perpWallDist).toInt);
 
-      var pitch : Int = 1
-
-      var drawStart :Int = -lineHeight / 2 + ScreenSize / 2 + pitch
-      var drawEnd : Int = lineHeight / 2 + ScreenSize / 2 + pitch
-      if(drawStart < 0) drawStart = 0
-      if(drawEnd >= ScreenSize) drawEnd = ScreenSize - 1
-      if (side == 1) stroke(255, 0, 0)
-      else stroke(0,0,255)
-
-      if (VPRESS) line(PlayerX.toInt + rayDirX.toFloat * 50, PlayerY.toFloat + rayDirY.toFloat * 50, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
-      else line(i, drawStart,i, drawEnd);
     }
-
   }
 
 
 
   def update(): Unit = {
 
-    var Speed: Double = 0.1
-    var cameraX: Double = (2*200) / (600).toDouble
-    var MoveModX: Double = DirX + PlaneX*cameraX
-    var MoveModY: Double = DirY + PlaneY*cameraX
-    if (UPPRESS) {PlayerY += 5 * MoveModY; PlayerX += 5 * MoveModX}
-    if (DOWNPRESS) {PlayerY -= 5 * MoveModY; PlayerX -= 5 * MoveModX}
+    val Speed: Double = 1
+
+
+    if (UPPRESS && !(map((PlayerX + Speed * DirX).toInt/BoxSize)((PlayerY + Speed * DirY).toInt/BoxSize) > 0)) {PlayerY += Speed * DirY; PlayerX += Speed * DirX}
+    if (DOWNPRESS && !(map((PlayerX - Speed * DirX).toInt/BoxSize)((PlayerY - Speed * DirY).toInt/BoxSize) > 0)) {PlayerY -= Speed * DirY; PlayerX -= Speed * DirX}
     if (LEFTPRESS) PlayerX -= 1
     if (RIGHTPRESS) PlayerX += 1
-    if (DPRESS){
-      val oldDirX = DirX
-      DirX = DirX * cos(-Speed) - DirY * sin(-Speed)
-      DirY = oldDirX * sin(-Speed) + DirY * cos(-Speed)
-      val oldPlaneX = PlaneX
-      PlaneX = PlaneX * cos(-Speed) - PlaneY * sin(-Speed)
-      PlaneY = oldPlaneX * sin(-Speed) + PlaneY * cos(-Speed)
-
-    }
-    if (APRESS) {
-      val oldDirX = DirX
-      DirX = DirX * cos(Speed) - DirY * sin(Speed)
-      DirY = oldDirX * sin(Speed) + DirY * cos(Speed)
-      val oldPlaneX = PlaneX
-      PlaneX = PlaneX * cos(Speed) - PlaneY * sin(Speed)
-      PlaneY = oldPlaneX * sin(Speed) + PlaneY * cos(Speed)
-
-    }
+    if (DPRESS){PlayerAngle += 2}
+    if (APRESS) {PlayerAngle -= 2}
     if (map(PlayerX.toInt/BoxSize)(PlayerY.toInt/BoxSize) > 0) {
-      if (UPPRESS) {PlayerY -= 5 * DirY; PlayerX -= 5 * DirX}
-      if (DOWNPRESS) {PlayerY += 5 * DirY; PlayerX += 5 * DirX}
       if (LEFTPRESS) PlayerX += 1
       if (RIGHTPRESS) PlayerX -= 1
     }
-
+    DirX = cos(toRadians(PlayerAngle))
+    DirY = sin(toRadians(PlayerAngle))
   }
   override def draw(): Unit = {
     background(255)
