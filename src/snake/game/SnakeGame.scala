@@ -79,10 +79,10 @@ class SnakeGame extends PApplet{
   def drawRays(): Unit = {
 
     var NumRays = 100
-    var FOV = 0
-    var RayAngle = PlayerAngle - FOV/2
+    var FOV = 100
     val BoxSize = 80
     for (i <- 0 until NumRays){
+      var RayAngle = PlayerAngle - FOV/2 + i
       var RayDirX : Double = cos(toRadians(RayAngle))
       var RayDirY : Double = sin(toRadians(RayAngle))
       var CurrentBoxX : Int = PlayerX.toInt/BoxSize
@@ -91,22 +91,34 @@ class SnakeGame extends PApplet{
       var CurrentY: Double = PlayerY/BoxSize
 
 
-      var DistX: Double = if (RayDirX < 0) -CurrentBoxX + CurrentX else CurrentBoxX - CurrentX
-      var DistY: Double = if (RayDirY < 0) -CurrentBoxY + CurrentY else CurrentBoxY - CurrentY
+      var hit : Boolean = false
 
-      println(DistX + " " + DistY)
+      while(!hit){
+        var DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
+        var DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
 
-      var DistTimeTakenX = DistX/RayDirX
-      var DistTimeTakenY = DistY/RayDirY
+        if (RayDirX == 0) RayDirX = 9999999999.0
+        if (RayDirX == 0) RayDirY = 9999999999.0
+        var DistTimeTakenX = DistX / RayDirX
+        var DistTimeTakenY = DistY / RayDirY
 
-      if (DistTimeTakenX < DistTimeTakenY){
-        CurrentX += DistTimeTakenX
+        if (abs(DistTimeTakenX) < abs(DistTimeTakenY)) {
+          CurrentX += DistTimeTakenX * RayDirX
+          CurrentY += DistTimeTakenX * RayDirY
+          if (RayDirX < 0) CurrentBoxX -= 1 else CurrentBoxX += 1
+        }
+        else {
+          CurrentX += DistTimeTakenY * RayDirX
+          CurrentY += DistTimeTakenY * RayDirY
+          if (RayDirY < 0) CurrentBoxY -= 1 else CurrentBoxY += 1
+        }
+
+        if (map(CurrentBoxX)(CurrentBoxY) > 0){
+          hit = true
+        }
       }
-      else{
-        CurrentY += DistTimeTakenY
-      }
-
-
+      stroke(0, 0, 255)
+      line(CurrentX.toFloat * 80, CurrentY.toFloat * 80, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
     }
   }
 
