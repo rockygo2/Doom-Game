@@ -81,6 +81,8 @@ class SnakeGame extends PApplet{
     var NumRays = 100
     var FOV = 100
     val BoxSize = 80
+    val lineMultiplier = ScreenSize/FOV
+    val Scale = ScreenSize/NumRays
     for (i <- 0 until NumRays){
       var RayAngle = PlayerAngle - FOV/2 + i
       var RayDirX : Double = cos(toRadians(RayAngle))
@@ -89,7 +91,7 @@ class SnakeGame extends PApplet{
       var CurrentBoxY : Int = PlayerY.toInt/BoxSize
       var CurrentX: Double = PlayerX/BoxSize
       var CurrentY: Double = PlayerY/BoxSize
-
+      var isX : Boolean = false
 
       var hit : Boolean = false
 
@@ -106,11 +108,13 @@ class SnakeGame extends PApplet{
           CurrentX += DistTimeTakenX * RayDirX
           CurrentY += DistTimeTakenX * RayDirY
           if (RayDirX < 0) CurrentBoxX -= 1 else CurrentBoxX += 1
+          isX = true
         }
         else {
           CurrentX += DistTimeTakenY * RayDirX
           CurrentY += DistTimeTakenY * RayDirY
           if (RayDirY < 0) CurrentBoxY -= 1 else CurrentBoxY += 1
+          isX = false
         }
 
         if (map(CurrentBoxX)(CurrentBoxY) > 0){
@@ -118,7 +122,29 @@ class SnakeGame extends PApplet{
         }
       }
       stroke(0, 0, 255)
-      line(CurrentX.toFloat * 80, CurrentY.toFloat * 80, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
+      if (VPRESS) {
+        line(CurrentX.toFloat * 80, CurrentY.toFloat * 80, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
+      }
+      else{
+        var depth: Double = math.cos(toRadians(PlayerAngle - RayAngle))
+      // ActualHeight/distance
+        var DistX : Double = PlayerX - CurrentX*80
+        var DistY : Double = PlayerY - CurrentY*80
+        var WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
+        var WallHeight = (ScreenSize/WallDistance) * 69/depth
+
+
+        line(i*lineMultiplier,ScreenSize/2 - WallHeight.toFloat,i*lineMultiplier,ScreenSize/2 + WallHeight.toFloat)
+
+        /*
+        fill(200,200,200)
+        rect(0, ScreenSize/2, ScreenSize, ScreenSize/2)
+        fill(100, 100, 100)
+        rect(0, 0, ScreenSize, ScreenSize/2)
+
+        fill(0, 0, 0)*/
+
+      }
     }
   }
 
