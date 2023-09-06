@@ -35,6 +35,8 @@ class SnakeGame extends PApplet{
     Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
     Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
     Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
   )
 
@@ -49,21 +51,21 @@ class SnakeGame extends PApplet{
   var VPRESS: Boolean = false
   var DirX: Double = -1
   var DirY: Double = 0
-  var PlaneX : Double = 0
-  var PlaneY : Double = 0.66
-  val BoxSize = ScreenSize/map.size
+  val BoxSize = 100
 
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
-      for (j <- map.indices) {
+      for (j <- map(0).indices) {
         if (map(i)(j) > 0) {
-          drawBlock((ScreenSize/map.length)*i, (ScreenSize/map.length)*j)
+          drawBlock((ScreenSize/map.length)*i, (ScreenSize/map(0).length)*j)
         }
       }
     }
   }
 
   def drawBlock(x: Int, y: Int): Unit = {
+    val BoxSizeX = ScreenSize/map.length
+    val BoxSizeY = ScreenSize/map(0).length
     fill(255, 208, 203)
     rect(x, y, BoxSize, BoxSize)
   }
@@ -136,11 +138,9 @@ class SnakeGame extends PApplet{
 
         val ColorDivide = if (isX) 2 else 1
 
-        val result = BoxNuM match {
+        BoxNuM match {
           case 1 => fill(255/ColorDivide, 0, 0); stroke(255/ColorDivide, 0, 0)
           case 2 => fill(255/ColorDivide, 208/ColorDivide, 203/ColorDivide); stroke(255/ColorDivide, 208/ColorDivide, 203/ColorDivide)
-          case 3 => "Three"
-          case _ => "Other"
         }
 
 
