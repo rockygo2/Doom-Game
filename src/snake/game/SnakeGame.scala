@@ -18,23 +18,24 @@ import java.util
 
 
 class SnakeGame extends PApplet{
-  val ScreenSize = 800
+  val ScreenSize = 1000
   var gameState: GameState = _
 
   var PlayerX: Double = 400
   var PlayerY: Double = 400
   var PlayerAngle = 0
   var map: Array[Array[Int]] = Array(
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-    Array(1, 0, 1, 0, 0, 0, 0, 1, 0, 1),
-    Array(1, 0, 1, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 1, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 1),
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    Array(1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1),
+    Array(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
   )
 
 
@@ -46,17 +47,16 @@ class SnakeGame extends PApplet{
   var DPRESS: Boolean = false
   var APRESS: Boolean = false
   var VPRESS: Boolean = false
-  val BoxSize = 80
   var DirX: Double = -1
   var DirY: Double = 0
   var PlaneX : Double = 0
   var PlaneY : Double = 0.66
+  val BoxSize = ScreenSize/map.size
 
-  // KEYS //
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map.indices) {
-        if (map(i)(j) == 1) {
+        if (map(i)(j) > 0) {
           drawBlock((ScreenSize/map.length)*i, (ScreenSize/map.length)*j)
         }
       }
@@ -65,7 +65,7 @@ class SnakeGame extends PApplet{
 
   def drawBlock(x: Int, y: Int): Unit = {
     fill(255, 208, 203)
-    rect(x, y, 80, 80)
+    rect(x, y, BoxSize, BoxSize)
   }
 
   def drawPlayer(): Unit = {
@@ -78,13 +78,12 @@ class SnakeGame extends PApplet{
 
   def drawRays(): Unit = {
 
-    var NumRays = 100
-    var FOV = 100
-    val BoxSize = 80
-    val lineMultiplier = ScreenSize/FOV
-    val Scale = ScreenSize/NumRays
+    val NumRays = 200
+    val FOV = 100
+    val lineMultiplier = ScreenSize/NumRays
+    val RayScale : Double = FOV/NumRays.toDouble
     for (i <- 0 until NumRays){
-      var RayAngle = PlayerAngle - FOV/2 + i
+      val RayAngle = PlayerAngle - FOV/2 + i*RayScale
       var RayDirX : Double = cos(toRadians(RayAngle))
       var RayDirY : Double = sin(toRadians(RayAngle))
       var CurrentBoxX : Int = PlayerX.toInt/BoxSize
@@ -99,8 +98,8 @@ class SnakeGame extends PApplet{
         var DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
         var DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
 
-        if (RayDirX == 0) RayDirX = 9999999999.0
-        if (RayDirX == 0) RayDirY = 9999999999.0
+        if (RayDirX == 0) RayDirX = 0.00000000000000001
+        if (RayDirX == 0) RayDirY = 0.00000000000000001
         var DistTimeTakenX = DistX / RayDirX
         var DistTimeTakenY = DistY / RayDirY
 
@@ -121,39 +120,49 @@ class SnakeGame extends PApplet{
           hit = true
         }
       }
-      stroke(0, 0, 255)
       if (VPRESS) {
-        line(CurrentX.toFloat * 80, CurrentY.toFloat * 80, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
+        line(CurrentX.toFloat * BoxSize, CurrentY.toFloat * BoxSize, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
       }
       else{
-        var depth: Double = math.cos(toRadians(PlayerAngle - RayAngle))
-      // ActualHeight/distance
-        var DistX : Double = PlayerX - CurrentX*80
-        var DistY : Double = PlayerY - CurrentY*80
-        var WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
-        var WallHeight = (ScreenSize/WallDistance) * 69/depth
+
+        //Fix FishEyeEffect
+        val depth: Double = math.cos(toRadians(PlayerAngle - RayAngle))
+
+        val DistX : Double = PlayerX - CurrentX*BoxSize
+        val DistY : Double = PlayerY - CurrentY*BoxSize
+        val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
+        val WallHeight = (ScreenSize/WallDistance) * 69/depth
+        val  BoxNuM= map(CurrentBoxX)(CurrentBoxY)
+
+        val ColorDivide = if (isX) 2 else 1
+
+        val result = BoxNuM match {
+          case 1 => fill(255/ColorDivide, 0, 0); stroke(255/ColorDivide, 0, 0)
+          case 2 => fill(255/ColorDivide, 208/ColorDivide, 203/ColorDivide); stroke(255/ColorDivide, 208/ColorDivide, 203/ColorDivide)
+          case 3 => "Three"
+          case _ => "Other"
+        }
 
 
-        line(i*lineMultiplier,ScreenSize/2 - WallHeight.toFloat,i*lineMultiplier,ScreenSize/2 + WallHeight.toFloat)
-
-        /*
-        fill(200,200,200)
-        rect(0, ScreenSize/2, ScreenSize, ScreenSize/2)
-        fill(100, 100, 100)
-        rect(0, 0, ScreenSize, ScreenSize/2)
-
-        fill(0, 0, 0)*/
-
+        //line(i*lineMultiplier,ScreenSize/2 - WallHeight.toFloat,i*lineMultiplier,ScreenSize/2 + WallHeight.toFloat)
+        rect(i*lineMultiplier, ScreenSize/2 - WallHeight.toFloat,ScreenSize/NumRays, WallHeight.toFloat*2)
       }
     }
   }
 
+  def setBackground(): Unit = {
+    fill(200, 200, 200)
+    rect(0, ScreenSize / 2, ScreenSize, ScreenSize / 2)
+    fill(100, 100, 100)
+    rect(0, 0, ScreenSize, ScreenSize / 2)
+
+    fill(0, 0, 0)
+  }
 
 
   def update(): Unit = {
 
-    val Speed: Double = 1
-
+    val Speed: Double = 5
 
     if (UPPRESS && !(map((PlayerX + Speed * DirX).toInt/BoxSize)((PlayerY + Speed * DirY).toInt/BoxSize) > 0)) {PlayerY += Speed * DirY; PlayerX += Speed * DirX}
     if (DOWNPRESS && !(map((PlayerX - Speed * DirX).toInt/BoxSize)((PlayerY - Speed * DirY).toInt/BoxSize) > 0)) {PlayerY -= Speed * DirY; PlayerX -= Speed * DirX}
@@ -176,6 +185,7 @@ class SnakeGame extends PApplet{
       drawRays()
     }
     else {
+      setBackground()
       drawRays()
     }
     //Draw2DMap()
