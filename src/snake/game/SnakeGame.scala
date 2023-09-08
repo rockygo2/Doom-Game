@@ -4,20 +4,14 @@
 package snake.game
 import scala.math._
 import processing.core._
-
-import java.awt.{Stroke, event}
-import processing.core.{PApplet, PConstants}
 import processing.event.KeyEvent
 
 import java.awt.event.KeyEvent._
-import engine.graphics.{Color, Point}
-import engine.graphics.Color._
-import engine.random.ScalaRandomGen
-
-import java.util
 
 
 class SnakeGame extends PApplet{
+
+
   val ScreenSize = 1000
   var gameState: GameState = _
 
@@ -25,23 +19,24 @@ class SnakeGame extends PApplet{
   var PlayerY: Double = 400
   var PlayerAngle = 0
   var map: Array[Array[Int]] = Array(
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-    Array(1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1),
-    Array(1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 9, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)
   )
 
-
-  // KEYS//
+  var TexturesArr : Array[PImage] = _
+  var CroppedTexturesArr : Array[Array[PImage]] = _
+  // KEYS/
   var UPPRESS: Boolean = false
   var DOWNPRESS: Boolean = false
   var LEFTPRESS: Boolean = false
@@ -51,8 +46,8 @@ class SnakeGame extends PApplet{
   var VPRESS: Boolean = false
   var DirX: Double = -1
   var DirY: Double = 0
-  val BoxSize = 100
-
+  val BoxSize = 192
+  val NumRays = 500
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map(0).indices) {
@@ -64,10 +59,10 @@ class SnakeGame extends PApplet{
   }
 
   def drawBlock(x: Int, y: Int): Unit = {
-    val BoxSizeX = ScreenSize/map.length
-    val BoxSizeY = ScreenSize/map(0).length
+    val BoxSizeX = ScreenSize/map(0).size
+    val BoxSizeY = ScreenSize/map.size
     fill(255, 208, 203)
-    rect(x, y, BoxSize, BoxSize)
+    rect(x, y, BoxSizeX, BoxSizeY)
   }
 
   def drawPlayer(): Unit = {
@@ -80,10 +75,10 @@ class SnakeGame extends PApplet{
 
   def drawRays(): Unit = {
 
-    val NumRays = 200
     val FOV = 100
-    val lineMultiplier = ScreenSize/NumRays
+    val LineSize : Int = ScreenSize/NumRays
     val RayScale : Double = FOV/NumRays.toDouble
+    val imgSizeCheck = 64 - LineSize
     for (i <- 0 until NumRays){
       val RayAngle = PlayerAngle - FOV/2 + i*RayScale
       var RayDirX : Double = cos(toRadians(RayAngle))
@@ -97,13 +92,13 @@ class SnakeGame extends PApplet{
       var hit : Boolean = false
 
       while(!hit){
-        var DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
-        var DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
+        val DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
+        val DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
 
         if (RayDirX == 0) RayDirX = 0.00000000000000001
         if (RayDirX == 0) RayDirY = 0.00000000000000001
-        var DistTimeTakenX = DistX / RayDirX
-        var DistTimeTakenY = DistY / RayDirY
+        val DistTimeTakenX = DistX / RayDirX
+        val DistTimeTakenY = DistY / RayDirY
 
         if (abs(DistTimeTakenX) < abs(DistTimeTakenY)) {
           CurrentX += DistTimeTakenX * RayDirX
@@ -133,19 +128,27 @@ class SnakeGame extends PApplet{
         val DistX : Double = PlayerX - CurrentX*BoxSize
         val DistY : Double = PlayerY - CurrentY*BoxSize
         val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
-        val WallHeight = (ScreenSize/WallDistance) * 69/depth
-        val  BoxNuM= map(CurrentBoxX)(CurrentBoxY)
+        var WallHeight = (ScreenSize/WallDistance) * 69/depth
+        val BoxNuM= map(CurrentBoxX)(CurrentBoxY)
+        var imageHeightY : Double = 64
+        var ImageYLocation = 0
+        var WallHeightChange : Double = 0
 
-        val ColorDivide = if (isX) 2 else 1
-
-        BoxNuM match {
-          case 1 => fill(255/ColorDivide, 0, 0); stroke(255/ColorDivide, 0, 0)
-          case 2 => fill(255/ColorDivide, 208/ColorDivide, 203/ColorDivide); stroke(255/ColorDivide, 208/ColorDivide, 203/ColorDivide)
+        /*if (WallHeight > ScreenSize/2) {
+          imageHeightY = (ScreenSize/ (2* WallHeight)) * 64
+          ImageYLocation =  32 - imageHeightY.toInt/2
+          WallHeightChange =  imageHeightY - imageHeightY.toInt
+          println(WallHeightChange)
         }
+         */
 
+        if (imageHeightY <= 1) imageHeightY = 1
+        //rect(i*LineSize, ScreenSize/2 - WallHeight.toFloat,ScreenSize/NumRays, WallHeight.toFloat*2)
+        val ImageX = if (!isX) abs((CurrentX - CurrentBoxX) * imgSizeCheck) else abs((CurrentY - CurrentBoxY) * imgSizeCheck)
+        val croppedImg = TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
+        croppedImg.resize(LineSize, WallHeight.toInt*2);
 
-        //line(i*lineMultiplier,ScreenSize/2 - WallHeight.toFloat,i*lineMultiplier,ScreenSize/2 + WallHeight.toFloat)
-        rect(i*lineMultiplier, ScreenSize/2 - WallHeight.toFloat,ScreenSize/NumRays, WallHeight.toFloat*2)
+        image(croppedImg, i*LineSize, ScreenSize/2 - WallHeight.toInt)
       }
     }
   }
@@ -162,18 +165,38 @@ class SnakeGame extends PApplet{
 
   def update(): Unit = {
 
-    val Speed: Double = 5
+    val Speed: Double = 10
+    val BoxCheck : Double = 50
+    DirX = cos(toRadians(PlayerAngle))
+    DirY = sin(toRadians(PlayerAngle))
+    var NewX : Double = PlayerX + Speed * DirX
+    var NewY : Double = PlayerY + Speed * DirY
 
-    if (UPPRESS && !(map((PlayerX + Speed * DirX).toInt/BoxSize)((PlayerY + Speed * DirY).toInt/BoxSize) > 0)) {PlayerY += Speed * DirY; PlayerX += Speed * DirX}
-    if (DOWNPRESS && !(map((PlayerX - Speed * DirX).toInt/BoxSize)((PlayerY - Speed * DirY).toInt/BoxSize) > 0)) {PlayerY -= Speed * DirY; PlayerX -= Speed * DirX}
+    if (UPPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
+      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+      {
+        PlayerY = NewY; PlayerX = NewX
+      }
+
+    NewX = PlayerX - Speed * DirX
+    NewY = PlayerY - Speed * DirY
+
+    if (DOWNPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
+      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    {
+      PlayerY = NewY; PlayerX = NewX
+    }
     if (LEFTPRESS) PlayerX -= 1
     if (RIGHTPRESS) PlayerX += 1
     if (DPRESS){PlayerAngle += 2}
     if (APRESS) {PlayerAngle -= 2}
-    if (map(PlayerX.toInt/BoxSize)(PlayerY.toInt/BoxSize) > 0) {
-      if (LEFTPRESS) PlayerX += 1
-      if (RIGHTPRESS) PlayerX -= 1
-    }
+
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
   }
@@ -188,18 +211,25 @@ class SnakeGame extends PApplet{
       setBackground()
       drawRays()
     }
-    //Draw2DMap()
-    //drawPlayer(PlayerX, PlayerY)
-    //drawRays()
     update()
-    //gameState.render()
 
   }
 
   override def setup(): Unit = {
     gameState = new GameState()
+    TexturesArr = Array(loadImage("src/engine/graphics/Images/Textures/barrel.png"),
+      loadImage("src/engine/graphics/Images/Textures/bluestone.png"),
+      loadImage("src/engine/graphics/Images/Textures/colorstone.png"),
+      loadImage("src/engine/graphics/Images/Textures/eagle.png"),
+      loadImage("src/engine/graphics/Images/Textures/greenlight.png"),
+      loadImage("src/engine/graphics/Images/Textures/greystone.png"),
+      loadImage("src/engine/graphics/Images/Textures/mossy.png"),
+      loadImage("src/engine/graphics/Images/Textures/pillar.png"),
+      loadImage("src/engine/graphics/Images/Textures/purplestone.png"),
+      loadImage("src/engine/graphics/Images/Textures/redbrick.png"),
+      loadImage("src/engine/graphics/Images/Textures/wood.png"))
+      frameRate(60)
   }
-
   override def settings(): Unit = {
     size(ScreenSize, ScreenSize)
   }
