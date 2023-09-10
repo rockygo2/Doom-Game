@@ -15,9 +15,6 @@ class SnakeGame extends PApplet{
   val ScreenSize = 1000
   var gameState: GameState = _
 
-  var PlayerX: Double = 400
-  var PlayerY: Double = 400
-  var PlayerAngle = 0
   var map: Array[Array[Int]] = Array(
     Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
@@ -31,11 +28,16 @@ class SnakeGame extends PApplet{
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)
   )
 
   var TexturesArr : Array[PImage] = _
   var CroppedTexturesArr : Array[Array[PImage]] = _
+  var Enemy: PImage = _
   // KEYS/
   var UPPRESS: Boolean = false
   var DOWNPRESS: Boolean = false
@@ -46,8 +48,14 @@ class SnakeGame extends PApplet{
   var VPRESS: Boolean = false
   var DirX: Double = -1
   var DirY: Double = 0
-  val BoxSize = 192
+  val BoxSize = 320
   val NumRays = 500
+  var PlayerX: Double = 500
+  var PlayerY: Double = 500
+  var PlayerAngle = 0
+  var EnemyX = 1800
+  var EnemyY = 1800
+  val FOV = 100
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map(0).indices) {
@@ -73,9 +81,31 @@ class SnakeGame extends PApplet{
     line(PlayerX.toInt + DirX.toFloat * 50, PlayerY.toFloat + DirY.toFloat * 50, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
   }
 
-  def drawRays(): Unit = {
+  def drawSprite(): Unit = {
+    val SpriteX : Double = EnemyX - PlayerX
+    val SpriteY : Double = EnemyY - PlayerY
+    val WallDistance : Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
+    val arcTan : Double = math.toDegrees(math.atan(SpriteY/SpriteX))
+    val AngleDif : Double = (arcTan - PlayerAngle) % 360
+    val adjustedAngleDif = if (AngleDif > 180) {
+      AngleDif - 360
+    } else if (AngleDif < -180) {
+      AngleDif + 360
+    } else {
+      AngleDif
+    }
+    val XSpriteLocation : Double = (FOV/2 + adjustedAngleDif)*ScreenSize/FOV
+    val proj = (100 / WallDistance * 0.7)
+    val WallHeight = (ScreenSize/WallDistance) * 69
 
-    val FOV = 100
+    val DrawEnemy: PImage  = Enemy.copy()
+    DrawEnemy.resize((2000 * proj).toInt, (2000 * proj).toInt);
+
+    println(SpriteX, SpriteY)
+    image(DrawEnemy, XSpriteLocation.toFloat, ScreenSize/2 + WallHeight )
+
+  }
+  def drawRays(): Unit = {
     val LineSize : Int = ScreenSize/NumRays
     val RayScale : Double = FOV/NumRays.toDouble
     val imgSizeCheck = 64 - LineSize
@@ -165,10 +195,12 @@ class SnakeGame extends PApplet{
 
   def update(): Unit = {
 
-    val Speed: Double = 10
-    val BoxCheck : Double = 50
+    val Speed: Double = 15
+    val BoxCheck : Double = 75
+
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
+
     var NewX : Double = PlayerX + Speed * DirX
     var NewY : Double = PlayerY + Speed * DirY
 
@@ -210,6 +242,7 @@ class SnakeGame extends PApplet{
     else {
       setBackground()
       drawRays()
+      drawSprite()
     }
     update()
 
@@ -228,6 +261,8 @@ class SnakeGame extends PApplet{
       loadImage("src/engine/graphics/Images/Textures/purplestone.png"),
       loadImage("src/engine/graphics/Images/Textures/redbrick.png"),
       loadImage("src/engine/graphics/Images/Textures/wood.png"))
+
+    Enemy = loadImage("src/engine/graphics/Images/Textures/Box2.png")
       frameRate(60)
   }
   override def settings(): Unit = {
