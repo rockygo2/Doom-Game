@@ -5,7 +5,7 @@ package snake.game
 import scala.math._
 import processing.core._
 import processing.event.KeyEvent
-
+import snake.game.Walls
 import java.awt.event.KeyEvent._
 
 
@@ -24,10 +24,10 @@ class SnakeGame extends PApplet{
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 9, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
@@ -53,9 +53,11 @@ class SnakeGame extends PApplet{
   var PlayerX: Double = 500
   var PlayerY: Double = 500
   var PlayerAngle = 0
-  var EnemyX = 1800
-  var EnemyY = 1800
+  var EnemyX : Double = 2000
+  var EnemyY : Double = 2000
   val FOV = 100
+  var WallArr : Array[Walls] = Array()
+
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map(0).indices) {
@@ -84,7 +86,7 @@ class SnakeGame extends PApplet{
   def drawSprite(): Unit = {
     val SpriteX : Double = EnemyX - PlayerX
     val SpriteY : Double = EnemyY - PlayerY
-    val WallDistance : Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
+    var WallDistance : Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
     val arcTan: Double = if (SpriteX > 0) {
       math.toDegrees(math.atan(SpriteY / SpriteX))
     } else if (SpriteX < 0) {
@@ -105,17 +107,26 @@ class SnakeGame extends PApplet{
       AngleDif
     }
     val XSpriteLocation : Double = (FOV/2 + adjustedAngleDif)*ScreenSize/FOV
-    val proj = (100 / WallDistance * 0.7)
+    if (WallDistance < 10) WallDistance = 10
+    val proj = (100 / WallDistance * 0.7)*4000
     val WallHeight = (ScreenSize/WallDistance) * 69
 
     val DrawEnemy: PImage  = Enemy.copy()
-    DrawEnemy.resize((2000 * proj).toInt, (2000 * proj).toInt);
+    DrawEnemy.resize(proj.toInt, proj.toInt);
 
-    println(SpriteX, SpriteY)
-    image(DrawEnemy, XSpriteLocation.toFloat, ScreenSize/2 + WallHeight )
+    val input : Walls = new Walls(DrawEnemy, WallDistance ,XSpriteLocation.toFloat, ScreenSize/2 + WallHeight - proj.toFloat)
+    WallArr = WallArr :+ input
 
   }
+
+  def drawWalls(): Unit = {
+    val sortedWallArray = WallArr.sortBy(_.WallDistance).reverse
+    for (i <- sortedWallArray.indices){
+      image(sortedWallArray(i).Image, sortedWallArray(i).PosX, sortedWallArray(i).PosY)
+    }
+  }
   def drawRays(): Unit = {
+    WallArr = Array()
     val LineSize : Int = ScreenSize/NumRays
     val RayScale : Double = FOV/NumRays.toDouble
     val imgSizeCheck = 64 - LineSize
@@ -168,19 +179,10 @@ class SnakeGame extends PApplet{
         val DistX : Double = PlayerX - CurrentX*BoxSize
         val DistY : Double = PlayerY - CurrentY*BoxSize
         val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
-        var WallHeight = (ScreenSize/WallDistance) * 69/depth
+        val WallHeight = (ScreenSize/WallDistance) * 69/depth
         val BoxNuM= map(CurrentBoxX)(CurrentBoxY)
         var imageHeightY : Double = 64
-        var ImageYLocation = 0
-        var WallHeightChange : Double = 0
-
-        /*if (WallHeight > ScreenSize/2) {
-          imageHeightY = (ScreenSize/ (2* WallHeight)) * 64
-          ImageYLocation =  32 - imageHeightY.toInt/2
-          WallHeightChange =  imageHeightY - imageHeightY.toInt
-          println(WallHeightChange)
-        }
-         */
+        val ImageYLocation = 0
 
         if (imageHeightY <= 1) imageHeightY = 1
         //rect(i*LineSize, ScreenSize/2 - WallHeight.toFloat,ScreenSize/NumRays, WallHeight.toFloat*2)
@@ -188,7 +190,9 @@ class SnakeGame extends PApplet{
         val croppedImg = TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
         croppedImg.resize(LineSize, WallHeight.toInt*2);
 
-        image(croppedImg, i*LineSize, ScreenSize/2 - WallHeight.toInt)
+        val input : Walls = new Walls(croppedImg , WallDistance.toFloat, i*LineSize, ScreenSize/2 - WallHeight.toInt)
+        WallArr = WallArr :+ input
+
       }
     }
   }
@@ -202,9 +206,11 @@ class SnakeGame extends PApplet{
     fill(0, 0, 0)
   }
 
-
+  def updateSprite(): Unit = {
+    val Speed : Double = 3.0
+    
+  }
   def update(): Unit = {
-
     val Speed: Double = 15
     val BoxCheck : Double = 75
 
@@ -241,6 +247,8 @@ class SnakeGame extends PApplet{
 
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
+
+    updateSprite()
   }
   override def draw(): Unit = {
     background(255)
@@ -253,6 +261,7 @@ class SnakeGame extends PApplet{
       setBackground()
       drawRays()
       drawSprite()
+      drawWalls()
     }
     update()
 
