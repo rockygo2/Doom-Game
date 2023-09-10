@@ -85,8 +85,18 @@ class SnakeGame extends PApplet{
     val SpriteX : Double = EnemyX - PlayerX
     val SpriteY : Double = EnemyY - PlayerY
     val WallDistance : Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
-    val arcTan : Double = math.toDegrees(math.atan(SpriteY/SpriteX))
-    val AngleDif : Double = (arcTan - PlayerAngle) % 360
+    val arcTan: Double = if (SpriteX > 0) {
+      math.toDegrees(math.atan(SpriteY / SpriteX))
+    } else if (SpriteX < 0) {
+      math.toDegrees(math.atan(SpriteY / SpriteX)) + 180.0
+    } else {
+      if (SpriteY >= 0) {
+        90.0
+      } else {
+        -90.0
+      }
+    }
+    val AngleDif : Double = (arcTan - PlayerAngle + 360) % 360
     val adjustedAngleDif = if (AngleDif > 180) {
       AngleDif - 360
     } else if (AngleDif < -180) {
