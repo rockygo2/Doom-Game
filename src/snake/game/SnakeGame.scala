@@ -6,13 +6,16 @@ import scala.math._
 import processing.core._
 import processing.event.KeyEvent
 import snake.game.Walls
+import snake.game.Object
+
 import java.awt.event.KeyEvent._
+import scala.runtime.ObjectRef
 
 
 class SnakeGame extends PApplet{
 
 
-  val ScreenSize = 1000
+  val ScreenSize = 800
   var gameState: GameState = _
 
   var map: Array[Array[Int]] = Array(
@@ -49,14 +52,14 @@ class SnakeGame extends PApplet{
   var DirX: Double = -1
   var DirY: Double = 0
   val BoxSize = 320
-  val NumRays = 500
+  val NumRays = 400
   var PlayerX: Double = 500
   var PlayerY: Double = 500
   var PlayerAngle = 0
-  var EnemyX : Double = 2000
-  var EnemyY : Double = 2000
   val FOV = 100
   var WallArr : Array[Walls] = Array()
+  var ObjectArr : Array[Object] = Array()
+  var ShootingArr : Array[PImage] = Array()
 
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
@@ -84,39 +87,45 @@ class SnakeGame extends PApplet{
   }
 
   def drawSprite(): Unit = {
-    val SpriteX : Double = EnemyX - PlayerX
-    val SpriteY : Double = EnemyY - PlayerY
-    var WallDistance : Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
-    val arcTan: Double = if (SpriteX > 0) {
-      math.toDegrees(math.atan(SpriteY / SpriteX))
-    } else if (SpriteX < 0) {
-      math.toDegrees(math.atan(SpriteY / SpriteX)) + 180.0
-    } else {
-      if (SpriteY >= 0) {
-        90.0
+    for (i <- ObjectArr) {
+      val SpriteX: Double = i.PosX - PlayerX
+      val SpriteY: Double = i.PosY - PlayerY
+      var WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
+      val arcTan: Double = if (SpriteX > 0) {
+        math.toDegrees(math.atan(SpriteY / SpriteX))
+      } else if (SpriteX < 0) {
+        math.toDegrees(math.atan(SpriteY / SpriteX)) + 180.0
       } else {
-        -90.0
+        if (SpriteY >= 0) {
+          90.0
+        } else {
+          -90.0
+        }
       }
+      val AngleDif: Double = (arcTan - PlayerAngle + 360) % 360
+      val adjustedAngleDif = if (AngleDif > 180) {
+        AngleDif - 360
+      } else if (AngleDif < -180) {
+        AngleDif + 360
+      } else {
+        AngleDif
+      }
+      val XSpriteLocation: Double = (FOV / 2 + adjustedAngleDif) * ScreenSize / FOV
+      if (WallDistance < 10) WallDistance = 10
+      val proj = (100 / WallDistance * i.Scale) * 4000
+      val WallHeight = (ScreenSize / WallDistance) * 69
+
+      val YSpriteLocation = ScreenSize / 2 + WallHeight - proj.toFloat
+
+      if (XSpriteLocation > 0 - proj && XSpriteLocation < ScreenSize && (YSpriteLocation > 0 && YSpriteLocation < ScreenSize) ){
+        val DrawEnemy: PImage = i.Image.copy()
+        DrawEnemy.resize(proj.toInt, proj.toInt);
+
+        val input: Walls = new Walls(DrawEnemy, WallDistance, XSpriteLocation.toFloat, YSpriteLocation)
+        WallArr = WallArr :+ input
+      }
+      return
     }
-    val AngleDif : Double = (arcTan - PlayerAngle + 360) % 360
-    val adjustedAngleDif = if (AngleDif > 180) {
-      AngleDif - 360
-    } else if (AngleDif < -180) {
-      AngleDif + 360
-    } else {
-      AngleDif
-    }
-    val XSpriteLocation : Double = (FOV/2 + adjustedAngleDif)*ScreenSize/FOV
-    if (WallDistance < 10) WallDistance = 10
-    val proj = (100 / WallDistance * 0.7)*4000
-    val WallHeight = (ScreenSize/WallDistance) * 69
-
-    val DrawEnemy: PImage  = Enemy.copy()
-    DrawEnemy.resize(proj.toInt, proj.toInt);
-
-    val input : Walls = new Walls(DrawEnemy, WallDistance ,XSpriteLocation.toFloat, ScreenSize/2 + WallHeight - proj.toFloat)
-    WallArr = WallArr :+ input
-
   }
 
   def drawWalls(): Unit = {
@@ -208,11 +217,15 @@ class SnakeGame extends PApplet{
 
   def updateSprite(): Unit = {
     val Speed : Double = 3.0
-    
+
+  }
+
+  def drawGun(): Unit = {
+    image(ShootingArr(0), 500 - 124, ScreenSize - 248)
   }
   def update(): Unit = {
-    val Speed: Double = 15
-    val BoxCheck : Double = 75
+    val Speed: Double = 25
+    val BoxCheck : Double = 100
 
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
@@ -240,10 +253,35 @@ class SnakeGame extends PApplet{
     {
       PlayerY = NewY; PlayerX = NewX
     }
-    if (LEFTPRESS) PlayerX -= 1
-    if (RIGHTPRESS) PlayerX += 1
-    if (DPRESS){PlayerAngle += 2}
-    if (APRESS) {PlayerAngle -= 2}
+
+    val NewDirX = cos(toRadians(PlayerAngle - 90))
+    val NewDirY = sin(toRadians(PlayerAngle - 90))
+
+    NewX = PlayerX + Speed * NewDirX
+    NewY = PlayerY + Speed * NewDirY
+
+    if (LEFTPRESS && map (NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
+      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    {
+      PlayerY = NewY; PlayerX = NewX
+    }
+
+    NewX = PlayerX - Speed * NewDirX
+    NewY = PlayerY - Speed * NewDirY
+
+    if (RIGHTPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
+      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    {
+      PlayerY = NewY; PlayerX = NewX
+    }
+    if (DPRESS){PlayerAngle += 4}
+    if (APRESS) {PlayerAngle -= 4}
 
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
@@ -262,6 +300,7 @@ class SnakeGame extends PApplet{
       drawRays()
       drawSprite()
       drawWalls()
+      drawGun()
     }
     update()
 
@@ -281,8 +320,20 @@ class SnakeGame extends PApplet{
       loadImage("src/engine/graphics/Images/Textures/redbrick.png"),
       loadImage("src/engine/graphics/Images/Textures/wood.png"))
 
-    Enemy = loadImage("src/engine/graphics/Images/Textures/Box2.png")
-      frameRate(60)
+    var orignalIMG = loadImage("src/engine/graphics/Images/HeadDoom.png");
+    //val croppedImage = orignalIMG.get(0, 0, 64, 64);
+
+    ObjectArr = Array(new Object(orignalIMG, 2000,2000, 0.5f))
+
+    orignalIMG = loadImage("src/engine/graphics/Images/Shotgun.png");
+    for (i <- 0 until 6) {
+      var croppedImage = orignalIMG.get(70 + i * 112, 0, 112, 112)
+      croppedImage.resize(248, 248)
+      ShootingArr =  ShootingArr :+ croppedImage
+    }
+
+    frameRate(30)
+
   }
   override def settings(): Unit = {
     size(ScreenSize, ScreenSize)
