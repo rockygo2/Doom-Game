@@ -49,6 +49,7 @@ class SnakeGame extends PApplet{
   var DPRESS: Boolean = false
   var APRESS: Boolean = false
   var VPRESS: Boolean = false
+  var SPACEPRESS: Boolean = false
   var DirX: Double = -1
   var DirY: Double = 0
   val BoxSize = 320
@@ -56,6 +57,7 @@ class SnakeGame extends PApplet{
   var PlayerX: Double = 500
   var PlayerY: Double = 500
   var PlayerAngle = 0
+  var ShootingTimer = 0
   val FOV = 100
   var WallArr : Array[Walls] = Array()
   var ObjectArr : Array[Object] = Array()
@@ -85,7 +87,6 @@ class SnakeGame extends PApplet{
     stroke(255, 0, 0)
     line(PlayerX.toInt + DirX.toFloat * 50, PlayerY.toFloat + DirY.toFloat * 50, PlayerX.toFloat + 5, PlayerY.toFloat + 5)
   }
-
   def drawSprite(): Unit = {
     for (i <- ObjectArr) {
       val SpriteX: Double = i.PosX - PlayerX
@@ -220,6 +221,30 @@ class SnakeGame extends PApplet{
 
   }
 
+  def normalizeAngle(angle: Int): Int = {
+    var normalizedAngle = angle % 360
+    if (normalizedAngle < 0) {
+      normalizedAngle += 360
+    }
+    normalizedAngle
+  }
+  def FireBullet(): Unit = {
+    if (ShootingTimer == 0) {
+      for (i <- ObjectArr) {
+        val SpriteX: Double = i.PosX - PlayerX
+        val SpriteY: Double = i.PosY - PlayerY
+        val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+        val PlayerShotDir : Double = PlayerAngle
+        val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
+        val proj = (100 / WallDistance * i.Scale) * 4000
+        if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV ){
+          println("HIT")
+        }
+      }
+      ShootingTimer = 1
+    }
+  }
+
   def drawGun(): Unit = {
     image(ShootingArr(0), 500 - 124, ScreenSize - 248)
   }
@@ -283,9 +308,14 @@ class SnakeGame extends PApplet{
     if (DPRESS){PlayerAngle += 4}
     if (APRESS) {PlayerAngle -= 4}
 
+    PlayerAngle = normalizeAngle(PlayerAngle)
+
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
 
+    if (ShootingTimer == 30) ShootingTimer = 0
+    if (SPACEPRESS) FireBullet()
+    if (ShootingTimer != 0) ShootingTimer += 1
     updateSprite()
   }
   override def draw(): Unit = {
@@ -349,6 +379,7 @@ class SnakeGame extends PApplet{
       case VK_D => DPRESS = true
       case VK_A => APRESS = true
       case VK_V => VPRESS = true
+      case VK_SPACE => SPACEPRESS = true
       case _ => ()
     }
 
@@ -363,6 +394,7 @@ class SnakeGame extends PApplet{
       case VK_D => DPRESS = false
       case VK_A => APRESS =false
       case VK_V => VPRESS = false
+      case VK_SPACE => SPACEPRESS = false
       case _ => ()
     }
   }
