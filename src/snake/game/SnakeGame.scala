@@ -16,21 +16,22 @@ class SnakeGame extends PApplet{
 
 
   val ScreenSize = 800
+  val HALFSCREENSIZE = ScreenSize/2
   var gameState: GameState = _
 
   var map: Array[Array[Int]] = Array(
     Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 9, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 9, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 9, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
@@ -62,7 +63,8 @@ class SnakeGame extends PApplet{
   var WallArr : Array[Walls] = Array()
   var ObjectArr : Array[Object] = Array()
   var ShootingArr : Array[PImage] = Array()
-
+  var Bullet : PImage = _
+  var PlayerHealth : Double = 100
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map(0).indices) {
@@ -112,11 +114,10 @@ class SnakeGame extends PApplet{
         AngleDif
       }
       val XSpriteLocation: Double = (FOV / 2 + adjustedAngleDif) * ScreenSize / FOV
-      if (WallDistance < 10) WallDistance = 10
       val proj = (100 / WallDistance * i.Scale) * 4000
       val WallHeight = (ScreenSize / WallDistance) * 69
 
-      val YSpriteLocation = ScreenSize / 2 + WallHeight - proj.toFloat
+      val YSpriteLocation = ScreenSize / 2 + WallHeight - proj
 
       if (XSpriteLocation > 0 - proj && XSpriteLocation < ScreenSize && (YSpriteLocation > 0 && YSpriteLocation < ScreenSize) ){
         val DrawEnemy: PImage = i.Image.copy()
@@ -125,7 +126,9 @@ class SnakeGame extends PApplet{
         val input: Walls = new Walls(DrawEnemy, WallDistance, XSpriteLocation.toFloat, YSpriteLocation)
         WallArr = WallArr :+ input
       }
-      return
+      else{
+        BlowUp(i.id)
+      }
     }
   }
 
@@ -134,6 +137,11 @@ class SnakeGame extends PApplet{
     for (i <- sortedWallArray.indices){
       image(sortedWallArray(i).Image, sortedWallArray(i).PosX, sortedWallArray(i).PosY)
     }
+  }
+
+  def BlowUp(ObjID : Int): Unit = {
+    PlayerHealth -= 50
+    ObjectArr = ObjectArr.filterNot(obj => obj.id == ObjID)
   }
   def drawRays(): Unit = {
     WallArr = Array()
@@ -200,7 +208,7 @@ class SnakeGame extends PApplet{
         val croppedImg = TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
         croppedImg.resize(LineSize, WallHeight.toInt*2);
 
-        val input : Walls = new Walls(croppedImg , WallDistance.toFloat, i*LineSize, ScreenSize/2 - WallHeight.toInt)
+        val input : Walls = new Walls(croppedImg , WallDistance.toFloat, i*LineSize, HALFSCREENSIZE - WallHeight.toInt)
         WallArr = WallArr :+ input
 
       }
@@ -209,16 +217,24 @@ class SnakeGame extends PApplet{
 
   def setBackground(): Unit = {
     fill(200, 200, 200)
-    rect(0, ScreenSize / 2, ScreenSize, ScreenSize / 2)
+    rect(0, HALFSCREENSIZE, ScreenSize, HALFSCREENSIZE)
     fill(100, 100, 100)
-    rect(0, 0, ScreenSize, ScreenSize / 2)
+    rect(0, 0, ScreenSize, HALFSCREENSIZE)
 
     fill(0, 0, 0)
   }
 
   def updateSprite(): Unit = {
-    val Speed : Double = 3.0
-
+    val Speed : Float = 10f
+    for (i <- ObjectArr){
+      val SpriteX = PlayerX - i.PosX
+      val SpriteY = PlayerY - i.PosY
+      val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+      val CurrentDirX : Float = cos(toRadians(TanInverse)).toFloat
+      val CurrentDirY : Float = sin(toRadians(TanInverse)).toFloat
+      i.PosX = i.PosX + Speed * CurrentDirX
+      i.PosY = i.PosY + Speed * CurrentDirY
+    }
   }
 
   def normalizeAngle(angle: Int): Int = {
@@ -238,7 +254,10 @@ class SnakeGame extends PApplet{
         val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
         val proj = (100 / WallDistance * i.Scale) * 4000
         if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV ){
-          println("HIT")
+          i.Health -= 50
+          if (i.Health <= 0){
+            ObjectArr = ObjectArr.filterNot(obj => obj.id == i.id)
+          }
         }
       }
       ShootingTimer = 1
@@ -246,7 +265,35 @@ class SnakeGame extends PApplet{
   }
 
   def drawGun(): Unit = {
-    image(ShootingArr(0), 500 - 124, ScreenSize - 248)
+
+    val GunMiddle = 75
+    if (ShootingTimer == 0){
+      image(ShootingArr(0), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+    }
+    else if( ShootingTimer < 3){
+      image(ShootingArr(0), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+      image(ShootingArr(4), HALFSCREENSIZE - GunMiddle/2 + 15, ScreenSize - 165)
+    }
+    else if (ShootingTimer < 6) {
+      image(ShootingArr(0), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+      image(ShootingArr(5), HALFSCREENSIZE - GunMiddle/2 + 15, ScreenSize - 173)
+    }
+    else if (ShootingTimer < 10){
+      image(ShootingArr(1), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+    }
+    else if (ShootingTimer < 16) {
+      image(ShootingArr(2), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+    }
+    else{
+      image(ShootingArr(3), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
+    }
+  }
+
+  def DrawHUD() : Unit = {
+    fill(0); // Set the fill color to black
+    textSize(32); // Set the text size
+
+    text("HP: " + PlayerHealth.toInt, 50, ScreenSize - 100);
   }
   def update(): Unit = {
     val Speed: Double = 25
@@ -313,7 +360,7 @@ class SnakeGame extends PApplet{
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
 
-    if (ShootingTimer == 30) ShootingTimer = 0
+    if (ShootingTimer == 20) ShootingTimer = 0
     if (SPACEPRESS) FireBullet()
     if (ShootingTimer != 0) ShootingTimer += 1
     updateSprite()
@@ -331,6 +378,7 @@ class SnakeGame extends PApplet{
       drawSprite()
       drawWalls()
       drawGun()
+      DrawHUD()
     }
     update()
 
@@ -353,14 +401,38 @@ class SnakeGame extends PApplet{
     var orignalIMG = loadImage("src/engine/graphics/Images/HeadDoom.png");
     //val croppedImage = orignalIMG.get(0, 0, 64, 64);
 
-    ObjectArr = Array(new Object(orignalIMG, 2000,2000, 0.5f))
+    ObjectArr = Array(new Object(1, 1,orignalIMG, 2000,2000, 0.5f, 100))
+    ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.5f, 100)
 
-    orignalIMG = loadImage("src/engine/graphics/Images/Shotgun.png");
-    for (i <- 0 until 6) {
-      var croppedImage = orignalIMG.get(70 + i * 112, 0, 112, 112)
-      croppedImage.resize(248, 248)
-      ShootingArr =  ShootingArr :+ croppedImage
-    }
+    orignalIMG = loadImage("src/engine/graphics/Images/DoomWeapons.png");
+
+    var croppedImage = orignalIMG.get(135, 251, 78, 60)
+    croppedImage.resize(150, 150)
+    ShootingArr =  ShootingArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(218, 190, 118, 121)
+    croppedImage.resize(150, 150)
+    ShootingArr = ShootingArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(339, 160, 87, 151)
+    croppedImage.resize(150, 150)
+    ShootingArr = ShootingArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(429, 181, 113, 130)
+    croppedImage.resize(150, 150)
+    ShootingArr = ShootingArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(235, 157, 44, 30)
+    ShootingArr = ShootingArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(282, 143, 54, 44)
+    ShootingArr = ShootingArr :+ croppedImage
+
+    orignalIMG = loadImage("src/engine/graphics/Images/Projectiles.png");
+    croppedImage = orignalIMG.get(47, 43, 13, 13)
+    croppedImage.resize(150, 150)
+
+    //ObjectArr = ObjectArr :+ new Object(3, 100, croppedImage, 4000,2000, 0.1f, 100)
 
     frameRate(30)
 
