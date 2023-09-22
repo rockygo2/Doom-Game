@@ -64,7 +64,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var ObjectArr : Array[Object] = Array()
   var ShootingArr : Array[PImage] = Array()
   var ExplosionArr : Array[PImage] = Array()
+  var Bullet : PImage = _
   var PlayerHealth : Double = 100
+
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
       for (j <- map(0).indices) {
@@ -221,40 +223,105 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   }
 
   def updateSprite(): Unit = {
-    val Speed : Float = 10f
     for (i <- ObjectArr){
       i.objType match {
-        case 1 => {
-          if (i.Timer == 0) {
-            val SpriteX = PlayerX - i.PosX
-            val SpriteY = PlayerY - i.PosY
-            if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
-              BlowUp(i); PlayerHealth -= 50
-            }
-            val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
-            val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
-            val CurrentDirY: Float = sin(toRadians(TanInverse)).toFloat
-
-            val checkSpriteBoundsX: Float = i.PosX + Speed * CurrentDirX
-            val checkSpriteBoundsY : Float = i.PosY + Speed * CurrentDirY
-            if(map(checkSpriteBoundsX.toInt/BoxSize)(checkSpriteBoundsY.toInt/BoxSize) == 0) {
-              i.PosX = i.PosX + Speed * CurrentDirX
-              i.PosY = i.PosY + Speed * CurrentDirY
-            }
-          }
-          else{
-            if (i.Timer < 5) i.Image = ExplosionArr(0)
-            else if (i.Timer < 10) i.Image = ExplosionArr(1)
-            else if (i.Timer < 15) i.Image = ExplosionArr(2)
-            else ObjectArr = ObjectArr.filterNot(obj => obj.id == i.id)
-            i.Timer += 1
-          }
-        }
+        case 1 => Sprite1(i)
+        case 2 => Sprite2(i)
+        case 100 => Sprite100(i)
         case _ => {
 
         }
       }
     }
+  }
+
+  def Sprite1(currentSprite : Object): Unit = {
+    val Speed : Float = 10f
+    if (currentSprite.Timer == 0) {
+      val SpriteX = PlayerX - currentSprite.PosX
+      val SpriteY = PlayerY - currentSprite.PosY
+      if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
+        BlowUp(currentSprite);
+        PlayerHealth -= 50
+      }
+      val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+      val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
+      val CurrentDirY: Float = sin(toRadians(TanInverse)).toFloat
+
+      val checkSpriteBoundsX: Float = currentSprite.PosX + Speed * CurrentDirX
+      val checkSpriteBoundsY: Float = currentSprite.PosY + Speed * CurrentDirY
+      if (map(checkSpriteBoundsX.toInt / BoxSize)(checkSpriteBoundsY.toInt / BoxSize) == 0) {
+        currentSprite.PosX = checkSpriteBoundsX
+        currentSprite.PosY = checkSpriteBoundsY
+      }
+    }
+    else {
+      if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
+      else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
+      else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
+      else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+      currentSprite.Timer += 1
+    }
+  }
+  def Sprite2(currentSprite : Object): Unit = {
+    if (currentSprite.Timer == 0) {
+      if (currentSprite.BulletTimer == 0) {
+        val newBullet = new Object(0, 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100)
+        val SpriteX = PlayerX - currentSprite.PosX
+        val SpriteY = PlayerY - currentSprite.PosY
+
+        val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+        val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
+        val CurrentDirY: Float = sin(toRadians(TanInverse)).toFloat
+
+        newBullet.BulletX = CurrentDirX
+        newBullet.BulletY = CurrentDirY
+
+        ObjectArr = ObjectArr :+ newBullet
+        currentSprite.BulletTimer += 1
+      }
+      else if (currentSprite.BulletTimer == 130) {
+        currentSprite.BulletTimer = 0
+      }
+      else {
+        currentSprite.BulletTimer += 1
+      }
+
+      if (currentSprite.Timer > 0) {
+        if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
+        else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
+        else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
+        else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+        currentSprite.Timer += 1
+      }
+    }
+    else{
+      if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
+      else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
+      else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
+      else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+      currentSprite.Timer += 1
+    }
+  }
+
+  def Sprite100(currentSprite : Object): Unit = {
+    val Speed = 90
+    val checkSpriteBoundsX: Float = currentSprite.PosX + Speed * currentSprite.BulletX
+    val checkSpriteBoundsY: Float = currentSprite.PosY + Speed * currentSprite.BulletY
+
+    val SpriteX = PlayerX - currentSprite.PosX
+    val SpriteY = PlayerY - currentSprite.PosY
+
+    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX  >= -300 && SpriteY >= -300) {
+      ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+      PlayerHealth -= 25
+      return
+    }
+    if (map(checkSpriteBoundsX.toInt / BoxSize)(checkSpriteBoundsY.toInt / BoxSize) == 0) {
+      currentSprite.PosX = checkSpriteBoundsX
+      currentSprite.PosY = checkSpriteBoundsY
+    }
+    else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
   }
 
   def normalizeAngle(angle: Int): Int = {
@@ -424,7 +491,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     ObjectArr = Array(new Object(1, 1,orignalIMG, 2000,2000, 0.4f, 100))
     //ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.4f, 100)
-    ObjectArr = ObjectArr :+ new Object(2, 1,CacoDemonIMG, 3000,3000, 0.4f, 100)
+    ObjectArr = ObjectArr :+ new Object(2, 2,CacoDemonIMG, 3000,3000, 0.4f, 100)
 
     orignalIMG = loadImage("src/engine/graphics/Images/DoomWeapons.png");
 
@@ -453,6 +520,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     orignalIMG = loadImage("src/engine/graphics/Images/Projectiles.png");
     croppedImage = orignalIMG.get(47, 43, 13, 13)
     croppedImage.resize(150, 150)
+    Bullet = croppedImage
 
 
     croppedImage = orignalIMG.get(2, 861, 72, 57)

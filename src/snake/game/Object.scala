@@ -15,4 +15,7 @@ class Object (
   val OriginalobjType = objType
 
   var Timer: Int = 0
+  var BulletTimer: Int = 0
+  var BulletX: Float = 0
+  var BulletY: Float = 0
 }
