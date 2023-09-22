@@ -12,7 +12,7 @@ import java.awt.event.KeyEvent._
 import scala.runtime.ObjectRef
 
 
-class SnakeGame extends PApplet{
+class SnakeGame extends PApplet with SnakeGameTrait{
 
 
   val ScreenSize = 800
@@ -29,7 +29,7 @@ class SnakeGame extends PApplet{
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
+    Array(9, 0, 0, 0, 0, 1, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
     Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
@@ -63,7 +63,7 @@ class SnakeGame extends PApplet{
   var WallArr : Array[Walls] = Array()
   var ObjectArr : Array[Object] = Array()
   var ShootingArr : Array[PImage] = Array()
-  var Bullet : PImage = _
+  var ExplosionArr : Array[PImage] = Array()
   var PlayerHealth : Double = 100
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
@@ -93,7 +93,7 @@ class SnakeGame extends PApplet{
     for (i <- ObjectArr) {
       val SpriteX: Double = i.PosX - PlayerX
       val SpriteY: Double = i.PosY - PlayerY
-      var WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
+      val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
       val arcTan: Double = if (SpriteX > 0) {
         math.toDegrees(math.atan(SpriteY / SpriteX))
       } else if (SpriteX < 0) {
@@ -119,6 +119,7 @@ class SnakeGame extends PApplet{
 
       val YSpriteLocation = ScreenSize / 2 + WallHeight - proj
 
+
       if (XSpriteLocation > 0 - proj && XSpriteLocation < ScreenSize && (YSpriteLocation > 0 && YSpriteLocation < ScreenSize) ){
         val DrawEnemy: PImage = i.Image.copy()
         DrawEnemy.resize(proj.toInt, proj.toInt);
@@ -126,12 +127,8 @@ class SnakeGame extends PApplet{
         val input: Walls = new Walls(DrawEnemy, WallDistance, XSpriteLocation.toFloat, YSpriteLocation)
         WallArr = WallArr :+ input
       }
-      else{
-        BlowUp(i.id)
-      }
     }
   }
-
   def drawWalls(): Unit = {
     val sortedWallArray = WallArr.sortBy(_.WallDistance).reverse
     for (i <- sortedWallArray.indices){
@@ -139,9 +136,8 @@ class SnakeGame extends PApplet{
     }
   }
 
-  def BlowUp(ObjID : Int): Unit = {
-    PlayerHealth -= 50
-    ObjectArr = ObjectArr.filterNot(obj => obj.id == ObjID)
+  def BlowUp(Obj: Object): Unit = {
+    Obj.Timer += 1
   }
   def drawRays(): Unit = {
     WallArr = Array()
@@ -227,13 +223,37 @@ class SnakeGame extends PApplet{
   def updateSprite(): Unit = {
     val Speed : Float = 10f
     for (i <- ObjectArr){
-      val SpriteX = PlayerX - i.PosX
-      val SpriteY = PlayerY - i.PosY
-      val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
-      val CurrentDirX : Float = cos(toRadians(TanInverse)).toFloat
-      val CurrentDirY : Float = sin(toRadians(TanInverse)).toFloat
-      i.PosX = i.PosX + Speed * CurrentDirX
-      i.PosY = i.PosY + Speed * CurrentDirY
+      i.objType match {
+        case 1 => {
+          if (i.Timer == 0) {
+            val SpriteX = PlayerX - i.PosX
+            val SpriteY = PlayerY - i.PosY
+            if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
+              BlowUp(i); PlayerHealth -= 50
+            }
+            val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+            val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
+            val CurrentDirY: Float = sin(toRadians(TanInverse)).toFloat
+
+            val checkSpriteBoundsX: Float = i.PosX + Speed * CurrentDirX
+            val checkSpriteBoundsY : Float = i.PosY + Speed * CurrentDirY
+            if(map(checkSpriteBoundsX.toInt/BoxSize)(checkSpriteBoundsY.toInt/BoxSize) == 0) {
+              i.PosX = i.PosX + Speed * CurrentDirX
+              i.PosY = i.PosY + Speed * CurrentDirY
+            }
+          }
+          else{
+            if (i.Timer < 5) i.Image = ExplosionArr(0)
+            else if (i.Timer < 10) i.Image = ExplosionArr(1)
+            else if (i.Timer < 15) i.Image = ExplosionArr(2)
+            else ObjectArr = ObjectArr.filterNot(obj => obj.id == i.id)
+            i.Timer += 1
+          }
+        }
+        case _ => {
+
+        }
+      }
     }
   }
 
@@ -256,7 +276,7 @@ class SnakeGame extends PApplet{
         if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV ){
           i.Health -= 50
           if (i.Health <= 0){
-            ObjectArr = ObjectArr.filterNot(obj => obj.id == i.id)
+            BlowUp(i)
           }
         }
       }
@@ -399,10 +419,12 @@ class SnakeGame extends PApplet{
       loadImage("src/engine/graphics/Images/Textures/wood.png"))
 
     var orignalIMG = loadImage("src/engine/graphics/Images/HeadDoom.png");
+    val CacoDemonIMG = loadImage("src/engine/graphics/Images/CacodemonSmall.png");
     //val croppedImage = orignalIMG.get(0, 0, 64, 64);
 
-    ObjectArr = Array(new Object(1, 1,orignalIMG, 2000,2000, 0.5f, 100))
-    ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.5f, 100)
+    ObjectArr = Array(new Object(1, 1,orignalIMG, 2000,2000, 0.4f, 100))
+    //ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.4f, 100)
+    ObjectArr = ObjectArr :+ new Object(2, 1,CacoDemonIMG, 3000,3000, 0.4f, 100)
 
     orignalIMG = loadImage("src/engine/graphics/Images/DoomWeapons.png");
 
@@ -432,7 +454,18 @@ class SnakeGame extends PApplet{
     croppedImage = orignalIMG.get(47, 43, 13, 13)
     croppedImage.resize(150, 150)
 
-    //ObjectArr = ObjectArr :+ new Object(3, 100, croppedImage, 4000,2000, 0.1f, 100)
+
+    croppedImage = orignalIMG.get(2, 861, 72, 57)
+    croppedImage.resize(150, 150)
+    ExplosionArr = ExplosionArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(76, 849, 87, 69)
+    croppedImage.resize(150, 150)
+    ExplosionArr = ExplosionArr :+ croppedImage
+
+    croppedImage = orignalIMG.get(165, 835, 102, 83)
+    croppedImage.resize(150, 150)
+    ExplosionArr = ExplosionArr :+ croppedImage
 
     frameRate(30)
 

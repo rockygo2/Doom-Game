@@ -4,11 +4,15 @@ import processing.core.PImage
 
 class Object (
                val id : Int,
-               val objType : Int,
-               val Image : PImage,
+               var objType : Int,
+               var Image : PImage,
                var PosX : Float,
                var PosY : Float,
                val Scale : Float,
                var Health : Double
              ) {
+  val OriginalHealth = Health
+  val OriginalobjType = objType
+
+  var Timer: Int = 0
 }
