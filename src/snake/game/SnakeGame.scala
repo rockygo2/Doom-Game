@@ -20,23 +20,23 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var gameState: GameState = _
 
   var map: Array[Array[Int]] = Array(
-    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 1, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9),
-    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9)
+    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,8,8,8,8,8,8,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,0,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
+    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,8,8,8,8,8,8)
   )
 
   var TexturesArr : Array[PImage] = _
@@ -266,7 +266,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   def Sprite2(currentSprite : Object): Unit = {
     if (currentSprite.Timer == 0) {
       if (currentSprite.BulletTimer == 0) {
-        val newBullet = new Object(0, 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100)
+        val newBullet = new Object( 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100)
         val SpriteX = PlayerX - currentSprite.PosX
         val SpriteY = PlayerY - currentSprite.PosY
 
@@ -489,9 +489,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     val CacoDemonIMG = loadImage("src/engine/graphics/Images/CacodemonSmall.png");
     //val croppedImage = orignalIMG.get(0, 0, 64, 64);
 
-    ObjectArr = Array(new Object(1, 1,orignalIMG, 2000,2000, 0.4f, 100))
+    ObjectArr = Array(new Object( 1,orignalIMG, 2000,2000, 0.4f, 100))
     //ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.4f, 100)
-    ObjectArr = ObjectArr :+ new Object(2, 2,CacoDemonIMG, 3000,3000, 0.4f, 100)
+    ObjectArr = ObjectArr :+ new Object( 2,CacoDemonIMG, 3000,3000, 0.4f, 100)
 
     orignalIMG = loadImage("src/engine/graphics/Images/DoomWeapons.png");
 

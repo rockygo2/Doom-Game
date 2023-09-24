@@ -3,7 +3,6 @@ package snake.game
 import processing.core.PImage
 
 class Object (
-               val id : Int,
                var objType : Int,
                var Image : PImage,
                var PosX : Float,
