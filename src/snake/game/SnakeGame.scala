@@ -5,7 +5,7 @@ package snake.game
 import scala.math._
 import processing.core._
 import processing.event.KeyEvent
-import ddf.minim.Minim
+import ddf.minim.{AudioPlayer, AudioSample, Minim}
 import snake.game.Walls
 import snake.game.Object
 
@@ -75,12 +75,14 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var PlayerHealth : Double = 100
   var WallDistanceShooting : Double = 0;
   var minim : Minim = _
+  var ShotgunSound : AudioSample = _
 
   def canSeePlayer(PosX : Double, PosY : Double): Boolean = {
 
     // bad function :(
-
-    val SpriteX = PlayerX - PosX
+    val PosX2 = PosX - 60
+    val PosY2 = PosY - 60
+    val SpriteX = PlayerX - PosX2
     val SpriteY = PlayerY - PosY
 
     val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
@@ -89,14 +91,14 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     var RayDirX: Double = CurrentDirX
     var RayDirY: Double = CurrentDirY
-    var CurrentBoxX: Int = PosX.toInt / BoxSize
-    var CurrentBoxY: Int = PosY.toInt / BoxSize
+    var CurrentBoxX: Int = PosX2.toInt / BoxSize
+    var CurrentBoxY: Int = PosY2.toInt / BoxSize
 
-    val startX = PosX / BoxSize
-    val startY = PosY / BoxSize
+    val startX = PosX2 / BoxSize
+    val startY = PosY2 / BoxSize
 
     var CurrentX: Double = PosX / BoxSize
-    var CurrentY: Double = PosY / BoxSize
+    var CurrentY: Double = PosY2 / BoxSize
     var isX: Boolean = false
     var hit: Boolean = false
 
@@ -124,7 +126,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
       if (map(CurrentBoxX)(CurrentBoxY) > 0) {
         hit = true
-        if(abs(startX - CurrentX) > abs(PlayerX/BoxSize - PosX/BoxSize) && abs(startY - CurrentY) > abs(PlayerY/BoxSize - PosY/BoxSize)){
+        if(abs(startX - CurrentX) > abs(PlayerX/BoxSize - PosX2/BoxSize) && abs(startY - CurrentY) > abs(PlayerY/BoxSize - PosY2/BoxSize)){
           return true
         }
         else{
@@ -381,6 +383,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   }
   def FireBullet(): Unit = {
     if (ShootingTimer == 0) {
+      ShotgunSound.trigger()
       for (i <- ObjectArr) {
         val SpriteX: Double = i.PosX - PlayerX
         val SpriteY: Double = i.PosY - PlayerY
@@ -413,10 +416,10 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       image(ShootingArr(0), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
       image(ShootingArr(5), HALFSCREENSIZE - GunMiddle/2 + 15, ScreenSize - 173)
     }
-    else if (ShootingTimer < 10){
+    else if (ShootingTimer < 15){
       image(ShootingArr(1), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
     }
-    else if (ShootingTimer < 16) {
+    else if (ShootingTimer < 21) {
       image(ShootingArr(2), HALFSCREENSIZE - GunMiddle, ScreenSize - 150)
     }
     else{
@@ -489,9 +492,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
 
-    if (ShootingTimer == 20) ShootingTimer = 0
+    if (ShootingTimer == 35) ShootingTimer = 0
     if (SPACEPRESS) FireBullet()
-    if (ShootingTimer != 0) ShootingTimer += 1
+    if (ShootingTimer != 0) {ShootingTimer += 1}
     updateSprite()
   }
 
@@ -583,9 +586,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     frameRate(30)
 
-    val filePath = dataPath("Doom_Soundtrack.mp3")
     minim = new Minim(this)
-    val music = minim.loadFile(filePath)
+    val music = minim.loadFile(dataPath("Doom_Soundtrack.mp3"))
+    ShotgunSound = minim.loadSample(dataPath("ShotGun.mp3"))
     music.loop()
 
   }
