@@ -20,28 +20,34 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var gameState: GameState = _
 
   var map: Array[Array[Int]] = Array(
-    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,8,8,8,8,8,8,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,0,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9,8,0,0,0,0,8),
-    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,8,8,8,8,8,8)
+    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
+    Array(9, 9, 9, 9, 9, 9, 9, 1, 0, 0, 1, 8, 8, 8, 8, 8, 8, 8),
+    Array(9, 9, 9, 9, 9, 9, 9, 1, 0, 0, 1, 8, 8, 8, 8, 8, 8, 8),
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1),
+    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+    Array(1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1),
+    Array(1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1),
+    Array(1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1),
+    Array(1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1),
+    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
   )
 
   var TexturesArr : Array[PImage] = _
-  var CroppedTexturesArr : Array[Array[PImage]] = _
-  var Enemy: PImage = _
   // KEYS/
   var UPPRESS: Boolean = false
   var DOWNPRESS: Boolean = false
@@ -66,6 +72,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var ExplosionArr : Array[PImage] = Array()
   var Bullet : PImage = _
   var PlayerHealth : Double = 100
+  var WallDistanceShooting : Double = 0;
 
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
@@ -78,8 +85,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   }
 
   def drawBlock(x: Int, y: Int): Unit = {
-    val BoxSizeX = ScreenSize/map(0).size
-    val BoxSizeY = ScreenSize/map.size
+    val BoxSizeX = ScreenSize/map(0).length
+    val BoxSizeY = ScreenSize/map.length
     fill(255, 208, 203)
     rect(x, y, BoxSizeX, BoxSizeY)
   }
@@ -96,26 +103,10 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       val SpriteX: Double = i.PosX - PlayerX
       val SpriteY: Double = i.PosY - PlayerY
       val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
-      val arcTan: Double = if (SpriteX > 0) {
-        math.toDegrees(math.atan(SpriteY / SpriteX))
-      } else if (SpriteX < 0) {
-        math.toDegrees(math.atan(SpriteY / SpriteX)) + 180.0
-      } else {
-        if (SpriteY >= 0) {
-          90.0
-        } else {
-          -90.0
-        }
-      }
-      val AngleDif: Double = (arcTan - PlayerAngle + 360) % 360
-      val adjustedAngleDif = if (AngleDif > 180) {
-        AngleDif - 360
-      } else if (AngleDif < -180) {
-        AngleDif + 360
-      } else {
-        AngleDif
-      }
-      val XSpriteLocation: Double = (FOV / 2 + adjustedAngleDif) * ScreenSize / FOV
+      val arcTan: Double = math.toDegrees(math.atan2(SpriteY, SpriteX))
+      val AngleDif: Double = ((arcTan - PlayerAngle + 540) % 360) - 180
+
+      val XSpriteLocation: Double = (FOV / 2 + AngleDif) * ScreenSize / FOV
       val proj = (100 / WallDistance * i.Scale) * 4000
       val WallHeight = (ScreenSize / WallDistance) * 69
 
@@ -131,6 +122,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       }
     }
   }
+
   def drawWalls(): Unit = {
     val sortedWallArray = WallArr.sortBy(_.WallDistance).reverse
     for (i <- sortedWallArray.indices){
@@ -138,14 +130,19 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     }
   }
 
-  def BlowUp(Obj: Object): Unit = {
-    Obj.Timer += 1
+  def BlowUp(currentSprite: Object): Unit = {
+    if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
+    else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
+    else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
+    else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+    currentSprite.Timer += 1
   }
   def drawRays(): Unit = {
     WallArr = Array()
     val LineSize : Int = ScreenSize/NumRays
     val RayScale : Double = FOV/NumRays.toDouble
     val imgSizeCheck = 64 - LineSize
+    val halfRays = NumRays/2
     for (i <- 0 until NumRays){
       val RayAngle = PlayerAngle - FOV/2 + i*RayScale
       var RayDirX : Double = cos(toRadians(RayAngle))
@@ -195,13 +192,15 @@ class SnakeGame extends PApplet with SnakeGameTrait{
         val DistX : Double = PlayerX - CurrentX*BoxSize
         val DistY : Double = PlayerY - CurrentY*BoxSize
         val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
+        if(i == halfRays){
+          WallDistanceShooting = WallDistance
+        }
         val WallHeight = (ScreenSize/WallDistance) * 69/depth
         val BoxNuM= map(CurrentBoxX)(CurrentBoxY)
         var imageHeightY : Double = 64
         val ImageYLocation = 0
 
         if (imageHeightY <= 1) imageHeightY = 1
-        //rect(i*LineSize, ScreenSize/2 - WallHeight.toFloat,ScreenSize/NumRays, WallHeight.toFloat*2)
         val ImageX = if (!isX) abs((CurrentX - CurrentBoxX) * imgSizeCheck) else abs((CurrentY - CurrentBoxY) * imgSizeCheck)
         val croppedImg = TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
         croppedImg.resize(LineSize, WallHeight.toInt*2);
@@ -241,7 +240,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       val SpriteX = PlayerX - currentSprite.PosX
       val SpriteY = PlayerY - currentSprite.PosY
       if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
-        BlowUp(currentSprite);
+        BlowUp(currentSprite)
         PlayerHealth -= 50
       }
       val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
@@ -256,11 +255,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       }
     }
     else {
-      if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
-      else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
-      else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
-      else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
-      currentSprite.Timer += 1
+      BlowUp(currentSprite)
     }
   }
   def Sprite2(currentSprite : Object): Unit = {
@@ -286,21 +281,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       else {
         currentSprite.BulletTimer += 1
       }
-
-      if (currentSprite.Timer > 0) {
-        if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
-        else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
-        else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
-        else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
-        currentSprite.Timer += 1
-      }
     }
     else{
-      if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
-      else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
-      else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
-      else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
-      currentSprite.Timer += 1
+      BlowUp(currentSprite)
     }
   }
 
@@ -340,7 +323,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
         val PlayerShotDir : Double = PlayerAngle
         val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
         val proj = (100 / WallDistance * i.Scale) * 4000
-        if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV ){
+        if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV && WallDistance < WallDistanceShooting){
           i.Health -= 50
           if (i.Health <= 0){
             BlowUp(i)
@@ -392,11 +375,16 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     var NewX : Double = PlayerX + Speed * DirX
     var NewY : Double = PlayerY + Speed * DirY
 
-    if (UPPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
-      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    def isValid(NewX: Double, NewY : Double): Boolean = {
+
+      map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+        map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
+        map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+        map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
+        map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0
+    }
+
+    if (UPPRESS && isValid(NewX, NewY))
       {
         PlayerY = NewY; PlayerX = NewX
       }
@@ -404,11 +392,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     NewX = PlayerX - Speed * DirX
     NewY = PlayerY - Speed * DirY
 
-    if (DOWNPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
-      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    if (DOWNPRESS && isValid(NewX, NewY))
     {
       PlayerY = NewY; PlayerX = NewX
     }
@@ -419,11 +403,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     NewX = PlayerX + Speed * NewDirX
     NewY = PlayerY + Speed * NewDirY
 
-    if (LEFTPRESS && map (NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
-      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    if (LEFTPRESS && isValid(NewX, NewY))
     {
       PlayerY = NewY; PlayerX = NewX
     }
@@ -431,16 +411,13 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     NewX = PlayerX - Speed * NewDirX
     NewY = PlayerY - Speed * NewDirY
 
-    if (RIGHTPRESS && map(NewX.toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY + BoxCheck).toInt / BoxSize) == 0 &&
-      map((NewX + BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX - BoxCheck).toInt / BoxSize)((NewY).toInt / BoxSize) == 0 &&
-      map((NewX).toInt / BoxSize)((NewY - BoxCheck).toInt / BoxSize) == 0)
+    if (RIGHTPRESS && isValid(NewX, NewY))
     {
       PlayerY = NewY; PlayerX = NewX
     }
-    if (DPRESS){PlayerAngle += 4}
-    if (APRESS) {PlayerAngle -= 4}
+
+    if (DPRESS){PlayerAngle += 3}
+    if (APRESS) {PlayerAngle -= 3}
 
     PlayerAngle = normalizeAngle(PlayerAngle)
 
@@ -452,12 +429,16 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     if (ShootingTimer != 0) ShootingTimer += 1
     updateSprite()
   }
+
+  def DrawGameOver(): Unit = {
+    textSize(32)
+    fill(255, 0, 0)
+    text("Game Over", width / 2 - 100, height / 2)
+  }
   override def draw(): Unit = {
     background(255)
-    if (VPRESS){
-      Draw2DMap()
-      drawPlayer()
-      drawRays()
+    if (PlayerHealth <= 0){
+      DrawGameOver()
     }
     else {
       setBackground()
