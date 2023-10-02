@@ -5,6 +5,7 @@ package snake.game
 import scala.math._
 import processing.core._
 import processing.event.KeyEvent
+import ddf.minim.Minim
 import snake.game.Walls
 import snake.game.Object
 
@@ -14,7 +15,7 @@ import scala.runtime.ObjectRef
 
 class SnakeGame extends PApplet with SnakeGameTrait{
 
-
+  //music.loop()
   val ScreenSize = 800
   val HALFSCREENSIZE = ScreenSize/2
   var gameState: GameState = _
@@ -73,6 +74,66 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var Bullet : PImage = _
   var PlayerHealth : Double = 100
   var WallDistanceShooting : Double = 0;
+  var minim : Minim = _
+
+  def canSeePlayer(PosX : Double, PosY : Double): Boolean = {
+
+    // bad function :(
+
+    val SpriteX = PlayerX - PosX
+    val SpriteY = PlayerY - PosY
+
+    val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
+    val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
+    val CurrentDirY: Float = sin(toRadians(TanInverse)).toFloat
+
+    var RayDirX: Double = CurrentDirX
+    var RayDirY: Double = CurrentDirY
+    var CurrentBoxX: Int = PosX.toInt / BoxSize
+    var CurrentBoxY: Int = PosY.toInt / BoxSize
+
+    val startX = PosX / BoxSize
+    val startY = PosY / BoxSize
+
+    var CurrentX: Double = PosX / BoxSize
+    var CurrentY: Double = PosY / BoxSize
+    var isX: Boolean = false
+    var hit: Boolean = false
+
+    while (!hit) {
+      val DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
+      val DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
+
+      if (RayDirX == 0) RayDirX = 0.00000000000000001
+      if (RayDirX == 0) RayDirY = 0.00000000000000001
+      val DistTimeTakenX = DistX / RayDirX
+      val DistTimeTakenY = DistY / RayDirY
+
+      if (abs(DistTimeTakenX) < abs(DistTimeTakenY)) {
+        CurrentX += DistTimeTakenX * RayDirX
+        CurrentY += DistTimeTakenX * RayDirY
+        if (RayDirX < 0) CurrentBoxX -= 1 else CurrentBoxX += 1
+        isX = true
+      }
+      else {
+        CurrentX += DistTimeTakenY * RayDirX
+        CurrentY += DistTimeTakenY * RayDirY
+        if (RayDirY < 0) CurrentBoxY -= 1 else CurrentBoxY += 1
+        isX = false
+      }
+
+      if (map(CurrentBoxX)(CurrentBoxY) > 0) {
+        hit = true
+        if(abs(startX - CurrentX) > abs(PlayerX/BoxSize - PosX/BoxSize) && abs(startY - CurrentY) > abs(PlayerY/BoxSize - PosY/BoxSize)){
+          return true
+        }
+        else{
+          return false
+        }
+      }
+    }
+    false
+  }
 
   def Draw2DMap(): Unit = {
     for (i <-  map.indices) {
@@ -139,6 +200,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   }
   def drawRays(): Unit = {
     WallArr = Array()
+
     val LineSize : Int = ScreenSize/NumRays
     val RayScale : Double = FOV/NumRays.toDouble
     val imgSizeCheck = 64 - LineSize
@@ -236,6 +298,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   def Sprite1(currentSprite : Object): Unit = {
     val Speed : Float = 10f
+    if (!canSeePlayer(currentSprite.PosX, currentSprite.PosY)){
+      return
+    }
     if (currentSprite.Timer == 0) {
       val SpriteX = PlayerX - currentSprite.PosX
       val SpriteY = PlayerY - currentSprite.PosY
@@ -517,6 +582,11 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     ExplosionArr = ExplosionArr :+ croppedImage
 
     frameRate(30)
+
+    val filePath = dataPath("Doom_Soundtrack.mp3")
+    minim = new Minim(this)
+    val music = minim.loadFile(filePath)
+    music.loop()
 
   }
   override def settings(): Unit = {
