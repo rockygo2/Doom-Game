@@ -21,31 +21,56 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var gameState: GameState = _
 
   var map: Array[Array[Int]] = Array(
-    Array(9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 8, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 0, 0, 0, 0, 0, 8),
-    Array(9, 9, 9, 9, 9, 9, 9, 1, 0, 0, 1, 8, 8, 8, 8, 8, 8, 8),
-    Array(9, 9, 9, 9, 9, 9, 9, 1, 0, 0, 1, 8, 8, 8, 8, 8, 8, 8),
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1),
-    Array(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
-    Array(1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1),
-    Array(1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1),
-    Array(1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1),
-    Array(1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1),
-    Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+    Array(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,8,0,0,8,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,9,9,9,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,9,9,9,9,9,9,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5),
+    Array(5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5),
   )
 
   var TexturesArr : Array[PImage] = _
@@ -62,9 +87,9 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var DirY: Double = 0
   val BoxSize = 320
   val NumRays = 400
-  var PlayerX: Double = 500
-  var PlayerY: Double = 500
-  var PlayerAngle = 0
+  var PlayerX: Double = 10120
+  var PlayerY: Double = 11361
+  var PlayerAngle = 180
   var ShootingTimer = 0
   val FOV = 100
   var WallArr : Array[Walls] = Array()
@@ -76,6 +101,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var WallDistanceShooting : Double = 0;
   var minim : Minim = _
   var ShotgunSound : AudioSample = _
+  var PlayerSpeed: Double = 25
+  var PlayerDamage: Double = 50
 
   def canSeePlayer(PosX : Double, PosY : Double): Boolean = {
 
@@ -197,7 +224,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     if (currentSprite.Timer < 5) currentSprite.Image = ExplosionArr(0)
     else if (currentSprite.Timer < 10) currentSprite.Image = ExplosionArr(1)
     else if (currentSprite.Timer < 15) currentSprite.Image = ExplosionArr(2)
-    else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+    else RemoveObject(currentSprite)
     currentSprite.Timer += 1
   }
   def drawRays(): Unit = {
@@ -290,7 +317,10 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       i.objType match {
         case 1 => Sprite1(i)
         case 2 => Sprite2(i)
+        case 3 => {Sprite1(i); Sprite2(i)}
         case 100 => Sprite100(i)
+        case 1000 => Sprite1000(i)
+        case 1001 => Sprite1001(i)
         case _ => {
 
         }
@@ -298,17 +328,18 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     }
   }
 
+  def RemoveObject(currentSprite : Object) : Unit= {
+    ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+  }
   def Sprite1(currentSprite : Object): Unit = {
+    // Moving
     val Speed : Float = 10f
-    if (!canSeePlayer(currentSprite.PosX, currentSprite.PosY)){
-      return
-    }
-    if (currentSprite.Timer == 0) {
+    if (currentSprite.Timer == 0 && canSeePlayer(currentSprite.PosX, currentSprite.PosY)) {
       val SpriteX = PlayerX - currentSprite.PosX
       val SpriteY = PlayerY - currentSprite.PosY
       if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
         BlowUp(currentSprite)
-        PlayerHealth -= 50
+        PlayerHealth -= currentSprite.Damage
       }
       val TanInverse: Double = normalizeAngle(math.toDegrees(math.atan2(SpriteY, SpriteX)).toInt)
       val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -316,19 +347,20 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
       val checkSpriteBoundsX: Float = currentSprite.PosX + Speed * CurrentDirX
       val checkSpriteBoundsY: Float = currentSprite.PosY + Speed * CurrentDirY
-      if (map(checkSpriteBoundsX.toInt / BoxSize)(checkSpriteBoundsY.toInt / BoxSize) == 0) {
+      //if (map(checkSpriteBoundsX.toInt / BoxSize)(checkSpriteBoundsY.toInt / BoxSize) == 0) {
         currentSprite.PosX = checkSpriteBoundsX
         currentSprite.PosY = checkSpriteBoundsY
-      }
+      //}
     }
-    else {
+    else if(currentSprite.Timer != 0) {
       BlowUp(currentSprite)
     }
   }
   def Sprite2(currentSprite : Object): Unit = {
+    // Shooting
     if (currentSprite.Timer == 0) {
       if (currentSprite.BulletTimer == 0) {
-        val newBullet = new Object( 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100)
+        val newBullet = new Object( 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100, 25)
         val SpriteX = PlayerX - currentSprite.PosX
         val SpriteY = PlayerY - currentSprite.PosY
 
@@ -353,8 +385,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
       BlowUp(currentSprite)
     }
   }
-
   def Sprite100(currentSprite : Object): Unit = {
+    // Bullet
     val Speed = 90
     val checkSpriteBoundsX: Float = currentSprite.PosX + Speed * currentSprite.BulletX
     val checkSpriteBoundsY: Float = currentSprite.PosY + Speed * currentSprite.BulletY
@@ -364,15 +396,49 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX  >= -300 && SpriteY >= -300) {
       ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
-      PlayerHealth -= 25
+      PlayerHealth -= currentSprite.Damage
       return
     }
     if (map(checkSpriteBoundsX.toInt / BoxSize)(checkSpriteBoundsY.toInt / BoxSize) == 0) {
       currentSprite.PosX = checkSpriteBoundsX
       currentSprite.PosY = checkSpriteBoundsY
     }
-    else ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
+    else RemoveObject(currentSprite)
   }
+
+  def Sprite1000(currentSprite : Object): Unit = {
+    // HealthPack
+    val SpriteX = PlayerX - currentSprite.PosX
+    val SpriteY = PlayerY - currentSprite.PosY
+    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
+      PlayerHealth += 50
+      if (PlayerHealth > 100){
+        PlayerHealth = 100
+      }
+      RemoveObject(currentSprite)
+    }
+  }
+
+  def Sprite1001(currentSprite: Object): Unit = {
+    // SpeedBoost
+    val SpriteX = PlayerX - currentSprite.PosX
+    val SpriteY = PlayerY - currentSprite.PosY
+    if (currentSprite.Timer != 0){
+      currentSprite.Timer += 1
+      // 20 seconds
+      if (currentSprite.Timer > 600){
+        PlayerSpeed -= 25
+        RemoveObject(currentSprite)
+      }
+      return
+    }
+    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
+      currentSprite.Timer = 1
+      currentSprite.PosX = -1000
+      PlayerSpeed += 25
+    }
+  }
+
 
   def normalizeAngle(angle: Int): Int = {
     var normalizedAngle = angle % 360
@@ -392,7 +458,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
         val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
         val proj = (100 / WallDistance * i.Scale) * 4000
         if (PlayerShotDir > TanInverse && PlayerShotDir < TanInverse + (proj/ScreenSize) * FOV && WallDistance < WallDistanceShooting){
-          i.Health -= 50
+          i.Health -= PlayerDamage
           if (i.Health <= 0){
             BlowUp(i)
           }
@@ -434,14 +500,13 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     text("HP: " + PlayerHealth.toInt, 50, ScreenSize - 100);
   }
   def update(): Unit = {
-    val Speed: Double = 25
     val BoxCheck : Double = 100
 
     DirX = cos(toRadians(PlayerAngle))
     DirY = sin(toRadians(PlayerAngle))
 
-    var NewX : Double = PlayerX + Speed * DirX
-    var NewY : Double = PlayerY + Speed * DirY
+    var NewX : Double = PlayerX + PlayerSpeed * DirX
+    var NewY : Double = PlayerY + PlayerSpeed * DirY
 
     def isValid(NewX: Double, NewY : Double): Boolean = {
 
@@ -453,12 +518,12 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     }
 
     if (UPPRESS && isValid(NewX, NewY))
-      {
-        PlayerY = NewY; PlayerX = NewX
-      }
+    {
+      PlayerY = NewY; PlayerX = NewX
+    }
 
-    NewX = PlayerX - Speed * DirX
-    NewY = PlayerY - Speed * DirY
+    NewX = PlayerX - PlayerSpeed * DirX
+    NewY = PlayerY - PlayerSpeed * DirY
 
     if (DOWNPRESS && isValid(NewX, NewY))
     {
@@ -468,16 +533,16 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     val NewDirX = cos(toRadians(PlayerAngle - 90))
     val NewDirY = sin(toRadians(PlayerAngle - 90))
 
-    NewX = PlayerX + Speed * NewDirX
-    NewY = PlayerY + Speed * NewDirY
+    NewX = PlayerX + PlayerSpeed * NewDirX
+    NewY = PlayerY + PlayerSpeed * NewDirY
 
     if (LEFTPRESS && isValid(NewX, NewY))
     {
       PlayerY = NewY; PlayerX = NewX
     }
 
-    NewX = PlayerX - Speed * NewDirX
-    NewY = PlayerY - Speed * NewDirY
+    NewX = PlayerX - PlayerSpeed * NewDirX
+    NewY = PlayerY - PlayerSpeed * NewDirY
 
     if (RIGHTPRESS && isValid(NewX, NewY))
     {
@@ -536,11 +601,17 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     var orignalIMG = loadImage("src/engine/graphics/Images/HeadDoom.png");
     val CacoDemonIMG = loadImage("src/engine/graphics/Images/CacodemonSmall.png");
+    val HealthPack = loadImage("src/engine/graphics/Images/HealthPack.png");
+    val SpeedBoost = loadImage("src/engine/graphics/Images/SpeedPower.png");
     //val croppedImage = orignalIMG.get(0, 0, 64, 64);
 
-    ObjectArr = Array(new Object( 1,orignalIMG, 2000,2000, 0.4f, 100))
+    ObjectArr = Array(new Object( 1,orignalIMG, 2000,2000, 0.4f, 100, 50))
     //ObjectArr = ObjectArr :+ new Object(2, 1,orignalIMG, 3000,3000, 0.4f, 100)
-    ObjectArr = ObjectArr :+ new Object( 2,CacoDemonIMG, 3000,3000, 0.4f, 100)
+    ObjectArr = ObjectArr :+ new Object( 2,CacoDemonIMG, 3000,3000, 0.4f, 100, 50)
+    ObjectArr = ObjectArr :+ new Object( 3,CacoDemonIMG, 3000,3000, 0.4f, 100, 25)
+    ObjectArr = ObjectArr :+ new Object(1000, HealthPack,2000, 1000, 0.1f)
+    ObjectArr = ObjectArr :+ new Object(1001, SpeedBoost,5000, 1000, 0.1f)
+
 
     orignalIMG = loadImage("src/engine/graphics/Images/DoomWeapons.png");
 
@@ -627,7 +698,6 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   }
 }
 
-case class Pixel(x: Float, y: Float, color: Int)
 
 
 

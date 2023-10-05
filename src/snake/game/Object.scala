@@ -8,7 +8,8 @@ class Object (
                var PosX : Float,
                var PosY : Float,
                val Scale : Float,
-               var Health : Double
+               var Health : Double = 0,
+               val  Damage : Double = 0
              ) {
   val OriginalHealth = Health
   val OriginalobjType = objType
