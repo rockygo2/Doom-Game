@@ -622,7 +622,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     croppedImage = orignalIMG.get(218, 190, 118, 121)
     croppedImage.resize(150, 150)
     ShootingArr = ShootingArr :+ croppedImage
-
+    //tes
     croppedImage = orignalIMG.get(339, 160, 87, 151)
     croppedImage.resize(150, 150)
     ShootingArr = ShootingArr :+ croppedImage
