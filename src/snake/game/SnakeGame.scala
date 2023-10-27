@@ -43,7 +43,7 @@ class DoomGame extends PApplet with SnakeGameTrait{
   def drawRays(): Unit = {
     Images.WallArr = Array()
 
-    val LineSize : Int = Miscellaneous.SCREEN_SIZE/Miscellaneous.NUM_RAYS
+    val LineSize : Int = Miscellaneous.SCREEN_SIZE.toInt/Miscellaneous.NUM_RAYS
     val RayScale : Double = Miscellaneous.FOV/Miscellaneous.NUM_RAYS.toDouble
     val imgSizeCheck = 64 - LineSize
     val halfRays = Miscellaneous.NUM_RAYS/2
@@ -447,7 +447,7 @@ class DoomGame extends PApplet with SnakeGameTrait{
 
   }
   override def settings(): Unit = {
-    size(Miscellaneous.SCREEN_SIZE, Miscellaneous.SCREEN_SIZE)
+    size(Miscellaneous.SCREEN_SIZE.toInt, Miscellaneous.SCREEN_SIZE.toInt)
   }
 
   override def keyPressed(event: KeyEvent): Unit = {
