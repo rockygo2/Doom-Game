@@ -57,7 +57,7 @@ object Miscellaneous {
   val FOV: Int = 100
   val BOX_SIZE: Int = 320
   val NUM_RAYS: Int = 400
-  val SCREEN_SIZE: Int = 800
+  val SCREEN_SIZE: Float = 800.toFloat
   val HALF_SCREEN_SIZE: Float = SCREEN_SIZE / 2
 
   def isPositionClear(x: Double, y: Double): Boolean = {
