@@ -16,6 +16,12 @@ SPACE : shoot
 ## Objective
 find and collect all the keys
 
+## Enemies
+Enemies either shoot
+Approach you to blow up
+OR BOTH
+
+
 ## Advice
 The purple path directly infront of the player is a bit difficult to start with choose any of the other paths to learn the game
 Also i had no time to implement a game menu so the application needs to be restarted after a win/loss :(
