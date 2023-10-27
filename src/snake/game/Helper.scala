@@ -18,8 +18,8 @@ object Helper {
     // bad function need to fix :(
     val PosX2 = PosX - 60
     val PosY2 = PosY - 60
-    val SpriteX = Player.PlayerX - PosX2
-    val SpriteY = Player.PlayerY - PosY
+    val SpriteX = Player.X - PosX2
+    val SpriteY = Player.Y - PosY
 
     val TanInverse: Double = Helper.getTanInverse(SpriteX, SpriteY)
     val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -62,7 +62,7 @@ object Helper {
 
       if (Miscellaneous.map(CurrentBoxX)(CurrentBoxY) > 0) {
         hit = true
-        if (abs(startX - CurrentX) > abs(Player.PlayerX / Miscellaneous.BOX_SIZE - PosX2 / Miscellaneous.BOX_SIZE) && abs(startY - CurrentY) > abs(Player.PlayerY / Miscellaneous.BOX_SIZE - PosY2 / Miscellaneous.BOX_SIZE)) {
+        if (abs(startX - CurrentX) > abs(Player.X / Miscellaneous.BOX_SIZE - PosX2 / Miscellaneous.BOX_SIZE) && abs(startY - CurrentY) > abs(Player.Y / Miscellaneous.BOX_SIZE - PosY2 / Miscellaneous.BOX_SIZE)) {
           return true
         }
         else {
@@ -71,6 +71,19 @@ object Helper {
       }
     }
     false
+  }
+
+  def BlowUp(currentSprite: Object): Unit = {
+    if (currentSprite.Timer == 0 && currentSprite.Health > 0) return
+    if (currentSprite.Timer < 5) currentSprite.Image = Images.ExplosionArr(0)
+    else if (currentSprite.Timer < 10) currentSprite.Image = Images.ExplosionArr(1)
+    else if (currentSprite.Timer < 15) currentSprite.Image = Images.ExplosionArr(2)
+    else RemoveObject(currentSprite)
+    currentSprite.Timer += 1
+  }
+
+  def RemoveObject(currentSprite : Object): Unit = {
+    Images.ObjectArr = Images.ObjectArr.filterNot(obj => obj == currentSprite)
   }
 
 }

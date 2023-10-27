@@ -10,7 +10,7 @@ import ddf.minim.{AudioSample, Minim}
 import java.awt.event.KeyEvent._
 
 
-class DoomGame extends PApplet with SnakeGameTrait{
+class DoomGame extends PApplet{
 
   // KEYS
   var UP_PRESS: Boolean = false
@@ -31,15 +31,6 @@ class DoomGame extends PApplet with SnakeGameTrait{
       image(i.Image, i.PosX, i.PosY)
     }
   }
-
-  def BlowUp(currentSprite: Object): Unit = {
-    if (currentSprite.Timer == 0 && currentSprite.Health > 0) return
-    if (currentSprite.Timer < 5) currentSprite.Image = Images.ExplosionArr(0)
-    else if (currentSprite.Timer < 10) currentSprite.Image = Images.ExplosionArr(1)
-    else if (currentSprite.Timer < 15) currentSprite.Image = Images.ExplosionArr(2)
-    else RemoveObject(currentSprite)
-    currentSprite.Timer += 1
-  }
   def drawRays(): Unit = {
     Images.WallArr = Array()
 
@@ -51,10 +42,10 @@ class DoomGame extends PApplet with SnakeGameTrait{
       val RayAngle = Player.PlayerAngle - Miscellaneous.FOV/2 + i*RayScale
       var RayDirX : Double = cos(toRadians(RayAngle))
       var RayDirY : Double = sin(toRadians(RayAngle))
-      var CurrentBoxX : Int = Player.PlayerX.toInt/Miscellaneous.BOX_SIZE
-      var CurrentBoxY : Int = Player.PlayerY.toInt/Miscellaneous.BOX_SIZE
-      var CurrentX: Double = Player.PlayerX/Miscellaneous.BOX_SIZE
-      var CurrentY: Double = Player.PlayerY/Miscellaneous.BOX_SIZE
+      var CurrentBoxX : Int = Player.X.toInt/Miscellaneous.BOX_SIZE
+      var CurrentBoxY : Int = Player.Y.toInt/Miscellaneous.BOX_SIZE
+      var CurrentX: Double = Player.X/Miscellaneous.BOX_SIZE
+      var CurrentY: Double = Player.Y/Miscellaneous.BOX_SIZE
       var isX : Boolean = false
 
       var hit : Boolean = false
@@ -87,8 +78,8 @@ class DoomGame extends PApplet with SnakeGameTrait{
       }
       //Fix FishEyeEffect
       val depth: Double = math.cos(toRadians(Player.PlayerAngle - RayAngle))
-      val DistX : Double = Player.PlayerX - CurrentX*Miscellaneous.BOX_SIZE
-      val DistY : Double = Player.PlayerY - CurrentY*Miscellaneous.BOX_SIZE
+      val DistX : Double = Player.X - CurrentX*Miscellaneous.BOX_SIZE
+      val DistY : Double = Player.Y - CurrentY*Miscellaneous.BOX_SIZE
       val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
       if(i == halfRays){
         Player.WallDistanceShooting = WallDistance
@@ -117,8 +108,8 @@ class DoomGame extends PApplet with SnakeGameTrait{
 
   def drawSprite(): Unit = {
     for (i <- Images.ObjectArr) {
-      val SpriteX: Double = i.PosX - Player.PlayerX
-      val SpriteY: Double = i.PosY - Player.PlayerY
+      val SpriteX: Double = i.PosX - Player.X
+      val SpriteY: Double = i.PosY - Player.Y
       val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
       val arcTan: Double = math.toDegrees(math.atan2(SpriteY, SpriteX))
       val AngleDif: Double = ((arcTan - Player.PlayerAngle + 540) % 360) - 180
@@ -143,36 +134,23 @@ class DoomGame extends PApplet with SnakeGameTrait{
 
   def updateSprite(): Unit = {
     for (i <- Images.ObjectArr){
-      i.objType match {
-        case "HeadDemon" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr); BlowUp(i)
-        case "CacoDemon" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr); BlowUp(i)
-        case "BrownDemon" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr); BlowUp(i)
-        case "Images.Bullet" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr)
-        case "Key" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr)
-        case "HealthPack" => Images.ObjectArr = i.UpdateSprite(Images.ObjectArr)
-        case "Speed" =>  Images.ObjectArr = i.UpdateSprite(Images.ObjectArr)
-        case _ =>
-      }
+      i.UpdateSprite()
     }
-  }
-
-  def RemoveObject(currentSprite : Object) : Unit= {
-    Images.ObjectArr = Images.ObjectArr.filterNot(obj => obj == currentSprite)
   }
 
   def FireBullet(): Unit = {
     if (Player.ShootingTimer == 0) {
       ShotgunSound.trigger()
       for (i <- Images.ObjectArr) {
-        val SpriteX: Double = i.PosX - Player.PlayerX
-        val SpriteY: Double = i.PosY - Player.PlayerY
+        val SpriteX: Double = i.PosX - Player.X
+        val SpriteY: Double = i.PosY - Player.Y
         val TanInverse: Double = Helper.getTanInverse(SpriteX, SpriteY)
         val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
         val proj = (100 / WallDistance * i.Scale) * 4000
         if (Player.PlayerAngle > TanInverse && Player.PlayerAngle < TanInverse + (proj/Miscellaneous.SCREEN_SIZE) * Miscellaneous.FOV && WallDistance < Player.WallDistanceShooting){
           i.Health -= Player.PlayerDamage
           if (i.Health <= 0){
-            BlowUp(i)
+            Helper.BlowUp(i)
           }
         }
       }
@@ -210,7 +188,7 @@ class DoomGame extends PApplet with SnakeGameTrait{
     text("X", Miscellaneous.HALF_SCREEN_SIZE - 10, Miscellaneous.HALF_SCREEN_SIZE - 10)
     textSize(32); // Set the text size
 
-    text("HP: " + Player.PlayerHealth.toInt, 50, Miscellaneous.SCREEN_SIZE - 100)
+    text("HP: " + Player.Health.toInt, 50, Miscellaneous.SCREEN_SIZE - 100)
     text("Keys: " + Player.TotalKeys +"/11", 50, Miscellaneous.SCREEN_SIZE - 200)
   }
 
@@ -226,7 +204,7 @@ class DoomGame extends PApplet with SnakeGameTrait{
       val Dir = direction(angle)
       val DirX = Dir._1
       val DirY = Dir._2
-      (Player.PlayerX + Player.PlayerSpeed * DirX, Player.PlayerY + Player.PlayerSpeed * DirY)
+      (Player.X + Player.PlayerSpeed * DirX, Player.Y + Player.PlayerSpeed * DirY)
     }
 
 
@@ -241,8 +219,8 @@ class DoomGame extends PApplet with SnakeGameTrait{
       val NewX = New._1
       val NewY = New._2
       if (isValid(NewX, NewY)) {
-        Player.PlayerX = NewX
-        Player.PlayerY = NewY
+        Player.X = NewX
+        Player.Y = NewY
       }
     }
 
@@ -281,7 +259,7 @@ class DoomGame extends PApplet with SnakeGameTrait{
     if(Player.TotalKeys == 11){
       GameWin()
     }
-    else if (Player.PlayerHealth <= 0){
+    else if (Player.Health <= 0){
       DrawGameOver()
     }
     else {

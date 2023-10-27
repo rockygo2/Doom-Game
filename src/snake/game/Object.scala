@@ -16,20 +16,16 @@ class Object (
   private var BulletTimer: Int = 0
   private var BulletDirX: Float = 0
   private var BulletDirY: Float = 0
-
-
-  private def RemoveObject(ObjectArr : Array[Object]): Array[Object] = {
-    ObjectArr.filterNot(obj => obj == this)
-  }
-  private def SpeedLogic( ObjectArr : Array[Object]): Array[Object] = {
-    val SpriteX = Player.PlayerX - PosX
-    val SpriteY = Player.PlayerY - PosY
+  
+  private def SpeedLogic(): Unit = {
+    val SpriteX = Player.X - PosX
+    val SpriteY = Player.Y - PosY
     if (Timer != 0) {
       Timer += 1
       // 20 seconds as FPS is 30
       if (Timer > 600) {
         Player.PlayerSpeed -= 25
-        return RemoveObject(ObjectArr)
+        Helper.RemoveObject(this)
       }
     }
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
@@ -37,51 +33,48 @@ class Object (
       PosX = -1000
       Player.PlayerSpeed += 25
     }
-    ObjectArr
   }
 
-  private def HealthPackLogic( ObjectArr : Array[Object]): Array[Object] = {
-    val SpriteX = Player.PlayerX - PosX
-    val SpriteY = Player.PlayerY - PosY
-    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300 && Player.PlayerHealth < 100) {
-      Player.PlayerHealth += 50
-      if (Player.PlayerHealth > 100) {
-        Player.PlayerHealth = 100
+  private def HealthPackLogic(): Unit = {
+    val SpriteX = Player.X - PosX
+    val SpriteY = Player.Y - PosY
+    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300 && Player.Health < 100) {
+      Player.Health += 50
+      if (Player.Health > 100) {
+        Player.Health = 100
       }
-      return RemoveObject(ObjectArr)
+      Helper.RemoveObject(this)
     }
-    ObjectArr
   }
 
-  private def BulletLogic( ObjectArr : Array[Object]): Array[Object] = {
+  private def BulletLogic(): Unit = {
     val Speed = 90
     val checkSpriteBoundsX: Float = PosX + Speed * BulletDirX
     val checkSpriteBoundsY: Float = PosY + Speed * BulletDirY
 
-    val SpriteX = Player.PlayerX - PosX
-    val SpriteY = Player.PlayerY - PosY
+    val SpriteX = Player.X - PosX
+    val SpriteY = Player.Y - PosY
 
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
-      Player.PlayerHealth -= Damage
-      return RemoveObject(ObjectArr)
+      Player.Health -= Damage
+      Helper.RemoveObject(this)
     }
 
     if (Miscellaneous.map(checkSpriteBoundsX.toInt / Miscellaneous.BOX_SIZE)(checkSpriteBoundsY.toInt / Miscellaneous.BOX_SIZE) == 0) {
       PosX = checkSpriteBoundsX
       PosY = checkSpriteBoundsY
-      ObjectArr
     }
-    else RemoveObject(ObjectArr)
+    else Helper.RemoveObject(this)
   }
 
-  private def MovementLogic( ObjectArr : Array[Object]): Array[Object] = {
+  private def MovementLogic(): Unit = {
       val Speed: Float = 10f
       if (Timer == 0) {
-        val SpriteX = Player.PlayerX - PosX
-        val SpriteY = Player.PlayerY - PosY
+        val SpriteX = Player.X - PosX
+        val SpriteY = Player.Y - PosY
         if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
           Timer = 1
-          Player.PlayerHealth -= Damage
+          Player.Health -= Damage
         }
         val TanInverse: Double = Helper.getTanInverse(SpriteX, SpriteY)
         val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -91,16 +84,17 @@ class Object (
         val checkSpriteBoundsY: Float = PosY + Speed * CurrentDirY
         PosX = checkSpriteBoundsX
         PosY = checkSpriteBoundsY
+      }else{
+        Helper.BlowUp(this)
       }
-    ObjectArr
   }
 
-  private def ShootingLogic(ObjectArr : Array[Object]): Array[Object] = {
+  private def ShootingLogic(): Unit = {
     if (Timer == 0) {
       if (BulletTimer == 0) {
         val newBullet = new Object("Bullet", Images.Bullet, PosX, PosY, 0.3f, 99999, Damage)
-        val SpriteX = Player.PlayerX - PosX
-        val SpriteY = Player.PlayerY - PosY
+        val SpriteX = Player.X - PosX
+        val SpriteY = Player.Y - PosY
 
         val TanInverse: Double = Helper.getTanInverse(SpriteX, SpriteY)
         val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -109,7 +103,7 @@ class Object (
         newBullet.BulletDirX = CurrentDirX
         newBullet.BulletDirY = CurrentDirY
         BulletTimer += 1
-        ObjectArr :+ newBullet
+        Images.ObjectArr = Images.ObjectArr :+ newBullet
       }
       if (BulletTimer == 130) {
         BulletTimer = 0
@@ -117,30 +111,30 @@ class Object (
       else {
         BulletTimer += 1
       }
+    } else {
+      Helper.BlowUp(this)
     }
-    ObjectArr
   }
 
-  private def KeyLogic(ObjectArr : Array[Object]): Array[Object] = {
-    val SpriteX = Player.PlayerX - PosX
-    val SpriteY = Player.PlayerY - PosY
+  private def KeyLogic(): Unit = {
+    val SpriteX = Player.X - PosX
+    val SpriteY = Player.Y - PosY
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
       Player.TotalKeys += 1
-      return RemoveObject(ObjectArr)
+      Helper.RemoveObject(this)
     }
-    ObjectArr
   }
 
-  def UpdateSprite(ObjectArr : Array[Object]): Array[Object] = {
+  def UpdateSprite(): Unit = {
     objType match {
-      case "HeadDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic(ObjectArr)} else ObjectArr
-      case "CacoDemon" => ShootingLogic(ObjectArr)
-      case "BrownDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic(ObjectArr); ShootingLogic(ObjectArr)} else ObjectArr
-      case "Key" => KeyLogic(ObjectArr)
-      case "Bullet" => BulletLogic(ObjectArr)
-      case "HealthPack" => HealthPackLogic(ObjectArr)
-      case "Speed" => SpeedLogic(ObjectArr)
-      case _ => ObjectArr
+      case "HeadDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic()}
+      case "CacoDemon" => ShootingLogic()
+      case "BrownDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic(); ShootingLogic()}
+      case "Key" => KeyLogic()
+      case "Bullet" => BulletLogic()
+      case "HealthPack" => HealthPackLogic()
+      case "Speed" => SpeedLogic()
+      case _ =>
     }
   }
 }
