@@ -70,6 +70,7 @@ class Object (
   private def MovementLogic(): Unit = {
       val Speed: Float = 10f
       if (Timer == 0) {
+        if (!Helper.canSeePlayer(PosX, PosY)) return
         val SpriteX = Player.X - PosX
         val SpriteY = Player.Y - PosY
         if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
@@ -127,9 +128,9 @@ class Object (
 
   def UpdateSprite(): Unit = {
     objType match {
-      case "HeadDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic()}
+      case "HeadDemon" =>  MovementLogic()
       case "CacoDemon" => ShootingLogic()
-      case "BrownDemon" => if (Helper.canSeePlayer(PosX, PosY)){ MovementLogic(); ShootingLogic()}
+      case "BrownDemon" => MovementLogic(); ShootingLogic()
       case "Key" => KeyLogic()
       case "Bullet" => BulletLogic()
       case "HealthPack" => HealthPackLogic()
