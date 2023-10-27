@@ -18,4 +18,5 @@ class Object (
   var BulletTimer: Int = 0
   var BulletX: Float = 0
   var BulletY: Float = 0
+
 }

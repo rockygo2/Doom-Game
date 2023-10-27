@@ -87,16 +87,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   var SPACE_PRESS: Boolean = false
 
   // Player Variables
-  var PlayerX: Double = 10120
-  var PlayerY: Double = 11361
-  var PlayerAngle: Int = 180
-  var ShootingTimer: Int = 0
-  var PlayerHealth : Double = 100
-  var PlayerSpeed: Double = 25
-  var PlayerDamage: Double = 50
-  var WallDistanceShooting : Double = 0;
-  var TotalKeys: Int = 0
-
+  val Player = new Player()
+  
   // Image Handling Arrays
   var WallArr : Array[Walls] = Array()
   var ObjectArr : Array[Object] = Array()
@@ -108,13 +100,14 @@ class SnakeGame extends PApplet with SnakeGameTrait{
   // Sounds
   var minim : Minim = _
   var ShotgunSound : AudioSample = _
+
   def canSeePlayer(PosX : Double, PosY : Double): Boolean = {
 
     // bad function need to fix :(
     val PosX2 = PosX - 60
     val PosY2 = PosY - 60
-    val SpriteX = PlayerX - PosX2
-    val SpriteY = PlayerY - PosY
+    val SpriteX = Player.PlayerX - PosX2
+    val SpriteY = Player.PlayerY - PosY
 
     val TanInverse: Double = Helper.getTanInverse(SpriteX,SpriteY)
     val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -157,7 +150,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
       if (map(CurrentBoxX)(CurrentBoxY) > 0) {
         hit = true
-        if(abs(startX - CurrentX) > abs(PlayerX/BOX_SIZE - PosX2/BOX_SIZE) && abs(startY - CurrentY) > abs(PlayerY/BOX_SIZE - PosY2/BOX_SIZE)){
+        if(abs(startX - CurrentX) > abs(Player.PlayerX/BOX_SIZE - PosX2/BOX_SIZE) && abs(startY - CurrentY) > abs(Player.PlayerY/BOX_SIZE - PosY2/BOX_SIZE)){
           return true
         }
         else{
@@ -170,14 +163,11 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   def drawSprite(): Unit = {
     for (i <- ObjectArr) {
-      val SpriteX: Double = i.PosX - PlayerX
-      val SpriteY: Double = i.PosY - PlayerY
+      val SpriteX: Double = i.PosX - Player.PlayerX
+      val SpriteY: Double = i.PosY - Player.PlayerY
       val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
       val arcTan: Double = math.toDegrees(math.atan2(SpriteY, SpriteX))
-
-      // Makes a positive angle difference Mathematically
-      val AngleDif: Double = ((arcTan - PlayerAngle + 540) % 360) - 180
-
+      val AngleDif: Double = ((arcTan - Player.PlayerAngle + 540) % 360) - 180
       val XSpriteLocation: Double = (FOV / 2 + AngleDif) * SCREEN_SIZE / FOV
       val proj = (100 / WallDistance * i.Scale) * 4000
       val WallHeight = (SCREEN_SIZE / WallDistance) * 69
@@ -187,7 +177,7 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
       if (XSpriteLocation > 0 - proj && XSpriteLocation < SCREEN_SIZE && (YSpriteLocation > 0 && YSpriteLocation < SCREEN_SIZE) ){
         val DrawEnemy: PImage = i.Image.copy()
-        DrawEnemy.resize(proj.toInt, proj.toInt);
+        DrawEnemy.resize(proj.toInt, proj.toInt)
 
         if (WallDistance > 0) {
           val input: Walls = new Walls(DrawEnemy, WallDistance, XSpriteLocation.toFloat, YSpriteLocation)
@@ -199,8 +189,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   def drawWalls(): Unit = {
     val sortedWallArray = WallArr.sortBy(_.WallDistance).reverse
-    for (i <- sortedWallArray.indices){
-      image(sortedWallArray(i).Image, sortedWallArray(i).PosX, sortedWallArray(i).PosY)
+    for (i <- sortedWallArray){
+      image(i.Image, i.PosX, i.PosY)
     }
   }
 
@@ -219,13 +209,13 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     val imgSizeCheck = 64 - LineSize
     val halfRays = NUM_RAYS/2
     for (i <- 0 until NUM_RAYS){
-      val RayAngle = PlayerAngle - FOV/2 + i*RayScale
+      val RayAngle = Player.PlayerAngle - FOV/2 + i*RayScale
       var RayDirX : Double = cos(toRadians(RayAngle))
       var RayDirY : Double = sin(toRadians(RayAngle))
-      var CurrentBoxX : Int = PlayerX.toInt/BOX_SIZE
-      var CurrentBoxY : Int = PlayerY.toInt/BOX_SIZE
-      var CurrentX: Double = PlayerX/BOX_SIZE
-      var CurrentY: Double = PlayerY/BOX_SIZE
+      var CurrentBoxX : Int = Player.PlayerX.toInt/BOX_SIZE
+      var CurrentBoxY : Int = Player.PlayerY.toInt/BOX_SIZE
+      var CurrentX: Double = Player.PlayerX/BOX_SIZE
+      var CurrentY: Double = Player.PlayerY/BOX_SIZE
       var isX : Boolean = false
 
       var hit : Boolean = false
@@ -257,12 +247,12 @@ class SnakeGame extends PApplet with SnakeGameTrait{
         }
       }
       //Fix FishEyeEffect
-      val depth: Double = math.cos(toRadians(PlayerAngle - RayAngle))
-      val DistX : Double = PlayerX - CurrentX*BOX_SIZE
-      val DistY : Double = PlayerY - CurrentY*BOX_SIZE
+      val depth: Double = math.cos(toRadians(Player.PlayerAngle - RayAngle))
+      val DistX : Double = Player.PlayerX - CurrentX*BOX_SIZE
+      val DistY : Double = Player.PlayerY - CurrentY*BOX_SIZE
       val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
       if(i == halfRays){
-        WallDistanceShooting = WallDistance
+        Player.WallDistanceShooting = WallDistance
       }
       val WallHeight = (SCREEN_SIZE/WallDistance) * 69/depth
       val BoxNuM= map(CurrentBoxX)(CurrentBoxY)
@@ -310,11 +300,11 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     // Moving
     val Speed : Float = 10f
     if (currentSprite.Timer == 0 && canSeePlayer(currentSprite.PosX, currentSprite.PosY)) {
-      val SpriteX = PlayerX - currentSprite.PosX
-      val SpriteY = PlayerY - currentSprite.PosY
+      val SpriteX = Player.PlayerX - currentSprite.PosX
+      val SpriteY = Player.PlayerY - currentSprite.PosY
       if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
         BlowUp(currentSprite)
-        PlayerHealth -= currentSprite.Damage
+        Player.PlayerHealth -= currentSprite.Damage
       }
       val TanInverse: Double = Helper.getTanInverse(SpriteX,SpriteY)
       val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -334,8 +324,8 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     if (currentSprite.Timer == 0) {
       if (currentSprite.BulletTimer == 0) {
         val newBullet = new Object( 100, Bullet, currentSprite.PosX, currentSprite.PosY, 0.3f, 100, currentSprite.Damage)
-        val SpriteX = PlayerX - currentSprite.PosX
-        val SpriteY = PlayerY - currentSprite.PosY
+        val SpriteX = Player.PlayerX - currentSprite.PosX
+        val SpriteY = Player.PlayerY - currentSprite.PosY
 
         val TanInverse: Double = Helper.getTanInverse(SpriteX,SpriteY)
         val CurrentDirX: Float = cos(toRadians(TanInverse)).toFloat
@@ -364,12 +354,12 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     val checkSpriteBoundsX: Float = currentSprite.PosX + Speed * currentSprite.BulletX
     val checkSpriteBoundsY: Float = currentSprite.PosY + Speed * currentSprite.BulletY
 
-    val SpriteX = PlayerX - currentSprite.PosX
-    val SpriteY = PlayerY - currentSprite.PosY
+    val SpriteX = Player.PlayerX - currentSprite.PosX
+    val SpriteY = Player.PlayerY - currentSprite.PosY
 
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX  >= -300 && SpriteY >= -300) {
       ObjectArr = ObjectArr.filterNot(obj => obj == currentSprite)
-      PlayerHealth -= currentSprite.Damage
+      Player.PlayerHealth -= currentSprite.Damage
       return
     }
     if (map(checkSpriteBoundsX.toInt / BOX_SIZE)(checkSpriteBoundsY.toInt / BOX_SIZE) == 0) {
@@ -381,12 +371,12 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   def Sprite1000(currentSprite : Object): Unit = {
     // HealthPack
-    val SpriteX = PlayerX - currentSprite.PosX
-    val SpriteY = PlayerY - currentSprite.PosY
-    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300 && PlayerHealth < 100) {
-      PlayerHealth += 50
-      if (PlayerHealth > 100){
-        PlayerHealth = 100
+    val SpriteX = Player.PlayerX - currentSprite.PosX
+    val SpriteY = Player.PlayerY - currentSprite.PosY
+    if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300 && Player.PlayerHealth < 100) {
+      Player.PlayerHealth += 50
+      if (Player.PlayerHealth > 100){
+        Player.PlayerHealth = 100
       }
       RemoveObject(currentSprite)
     }
@@ -394,13 +384,13 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   def Sprite1001(currentSprite: Object): Unit = {
     // SpeedBoost
-    val SpriteX = PlayerX - currentSprite.PosX
-    val SpriteY = PlayerY - currentSprite.PosY
+    val SpriteX = Player.PlayerX - currentSprite.PosX
+    val SpriteY = Player.PlayerY - currentSprite.PosY
     if (currentSprite.Timer != 0){
       currentSprite.Timer += 1
       // 20 seconds
       if (currentSprite.Timer > 600){
-        PlayerSpeed -= 25
+        Player.PlayerSpeed -= 25
         RemoveObject(currentSprite)
       }
       return
@@ -408,57 +398,57 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
       currentSprite.Timer = 1
       currentSprite.PosX = -1000
-      PlayerSpeed += 25
+      Player.PlayerSpeed += 25
     }
   }
 
   def Sprite69(currentSprite: Object): Unit = {
     // Keys
-    val SpriteX = PlayerX - currentSprite.PosX
-    val SpriteY = PlayerY - currentSprite.PosY
+    val SpriteX = Player.PlayerX - currentSprite.PosX
+    val SpriteY = Player.PlayerY - currentSprite.PosY
     if (SpriteX <= 300 && SpriteY <= 300 && SpriteX >= -300 && SpriteY >= -300) {
-      TotalKeys += 1
+      Player.TotalKeys += 1
       RemoveObject(currentSprite)
     }
   }
 
   def FireBullet(): Unit = {
-    if (ShootingTimer == 0) {
+    if (Player.ShootingTimer == 0) {
       ShotgunSound.trigger()
       for (i <- ObjectArr) {
-        val SpriteX: Double = i.PosX - PlayerX
-        val SpriteY: Double = i.PosY - PlayerY
+        val SpriteX: Double = i.PosX - Player.PlayerX
+        val SpriteY: Double = i.PosY - Player.PlayerY
         val TanInverse: Double = Helper.getTanInverse(SpriteX, SpriteY)
         val WallDistance: Float = sqrt(pow(SpriteX, 2) + pow(SpriteY, 2)).toFloat
         val proj = (100 / WallDistance * i.Scale) * 4000
-        if (PlayerAngle > TanInverse && PlayerAngle < TanInverse + (proj/SCREEN_SIZE) * FOV && WallDistance < WallDistanceShooting){
-          i.Health -= PlayerDamage
+        if (Player.PlayerAngle > TanInverse && Player.PlayerAngle < TanInverse + (proj/SCREEN_SIZE) * FOV && WallDistance < Player.WallDistanceShooting){
+          i.Health -= Player.PlayerDamage
           if (i.Health <= 0){
             BlowUp(i)
           }
         }
       }
-      ShootingTimer = 1
+      Player.ShootingTimer = 1
     }
   }
 
   def drawGun(): Unit = {
     val GunMiddle = 75
-    if (ShootingTimer == 0){
+    if (Player.ShootingTimer == 0){
       image(ShootingArr(0), HALF_SCREEN_SIZE - GunMiddle, SCREEN_SIZE - 150)
     }
-    else if( ShootingTimer < 3){
+    else if( Player.ShootingTimer < 3){
       image(ShootingArr(0), HALF_SCREEN_SIZE - GunMiddle, SCREEN_SIZE - 150)
       image(ShootingArr(4), HALF_SCREEN_SIZE - GunMiddle/2 + 15, SCREEN_SIZE - 165)
     }
-    else if (ShootingTimer < 6) {
+    else if (Player.ShootingTimer < 6) {
       image(ShootingArr(0), HALF_SCREEN_SIZE - GunMiddle, SCREEN_SIZE - 150)
       image(ShootingArr(5), HALF_SCREEN_SIZE - GunMiddle/2 + 15, SCREEN_SIZE - 173)
     }
-    else if (ShootingTimer < 15){
+    else if (Player.ShootingTimer < 15){
       image(ShootingArr(1), HALF_SCREEN_SIZE - GunMiddle, SCREEN_SIZE - 150)
     }
-    else if (ShootingTimer < 21) {
+    else if (Player.ShootingTimer < 21) {
       image(ShootingArr(2), HALF_SCREEN_SIZE - GunMiddle, SCREEN_SIZE - 150)
     }
     else{
@@ -472,17 +462,17 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     text("X", HALF_SCREEN_SIZE - 10, HALF_SCREEN_SIZE - 10);
     textSize(32); // Set the text size
 
-    text("HP: " + PlayerHealth.toInt, 50, SCREEN_SIZE - 100);
-    text("Keys: " + TotalKeys +"/11", 50, SCREEN_SIZE - 200);
+    text("HP: " + Player.PlayerHealth.toInt, 50, SCREEN_SIZE - 100);
+    text("Keys: " + Player.TotalKeys +"/11", 50, SCREEN_SIZE - 200);
   }
   def update(): Unit = {
     val BoxCheck : Double = 100
 
-    val DirX = cos(toRadians(PlayerAngle))
-    val DirY = sin(toRadians(PlayerAngle))
+    val DirX = cos(toRadians(Player.PlayerAngle))
+    val DirY = sin(toRadians(Player.PlayerAngle))
 
-    var NewX : Double = PlayerX + PlayerSpeed * DirX
-    var NewY : Double = PlayerY + PlayerSpeed * DirY
+    var NewX : Double = Player.PlayerX + Player.PlayerSpeed * DirX
+    var NewY : Double = Player.PlayerY + Player.PlayerSpeed * DirY
 
     def isValid(NewX: Double, NewY : Double): Boolean = {
 
@@ -495,44 +485,44 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
     if (UP_PRESS && isValid(NewX, NewY))
     {
-      PlayerY = NewY; PlayerX = NewX
+      Player.PlayerY = NewY; Player.PlayerX = NewX
     }
 
-    NewX = PlayerX - PlayerSpeed * DirX
-    NewY = PlayerY - PlayerSpeed * DirY
+    NewX = Player.PlayerX - Player.PlayerSpeed * DirX
+    NewY = Player.PlayerY - Player.PlayerSpeed * DirY
 
     if (DOWN_PRESS && isValid(NewX, NewY))
     {
-      PlayerY = NewY; PlayerX = NewX
+      Player.PlayerY = NewY; Player.PlayerX = NewX
     }
 
-    val NewDirX = cos(toRadians(PlayerAngle - 90))
-    val NewDirY = sin(toRadians(PlayerAngle - 90))
+    val NewDirX = cos(toRadians(Player.PlayerAngle - 90))
+    val NewDirY = sin(toRadians(Player.PlayerAngle - 90))
 
-    NewX = PlayerX + PlayerSpeed * NewDirX
-    NewY = PlayerY + PlayerSpeed * NewDirY
+    NewX = Player.PlayerX + Player.PlayerSpeed * NewDirX
+    NewY = Player.PlayerY + Player.PlayerSpeed * NewDirY
 
     if (LEFT_PRESS && isValid(NewX, NewY))
     {
-      PlayerY = NewY; PlayerX = NewX
+      Player.PlayerY = NewY; Player.PlayerX = NewX
     }
 
-    NewX = PlayerX - PlayerSpeed * NewDirX
-    NewY = PlayerY - PlayerSpeed * NewDirY
+    NewX = Player.PlayerX - Player.PlayerSpeed * NewDirX
+    NewY = Player.PlayerY - Player.PlayerSpeed * NewDirY
 
     if (RIGHT_PRESS && isValid(NewX, NewY))
     {
-      PlayerY = NewY; PlayerX = NewX
+      Player.PlayerY = NewY; Player.PlayerX = NewX
     }
 
-    if (D_PRESS){PlayerAngle += 3}
-    if (A_PRESS) {PlayerAngle -= 3}
+    if (D_PRESS){Player.PlayerAngle += 3}
+    if (A_PRESS) {Player.PlayerAngle -= 3}
 
-    PlayerAngle = Helper.NormalizeAngle(PlayerAngle)
+    Player.PlayerAngle = Helper.NormalizeAngle(Player.PlayerAngle)
 
-    if (ShootingTimer == 35) ShootingTimer = 0
+    if (Player.ShootingTimer == 35) Player.ShootingTimer = 0
     if (SPACE_PRESS) FireBullet()
-    if (ShootingTimer != 0) {ShootingTimer += 1}
+    if (Player.ShootingTimer != 0) {Player.ShootingTimer += 1}
     updateSprite()
   }
 
@@ -550,11 +540,11 @@ class SnakeGame extends PApplet with SnakeGameTrait{
 
   override def draw(): Unit = {
     background(255)
-    if(TotalKeys == 11){
+    if(Player.TotalKeys == 11){
       GameWin()
       return
     }
-    if (PlayerHealth <= 0){
+    if (Player.PlayerHealth <= 0){
       DrawGameOver()
     }
     else {
@@ -754,9 +744,6 @@ class SnakeGame extends PApplet with SnakeGameTrait{
     }
   }
 }
-
-
-
 
 object SnakeGame {
 
