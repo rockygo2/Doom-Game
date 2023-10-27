@@ -18,3 +18,6 @@ find and collect all the keys
 
 ## Advice
 The purple path directly infront of the player is a bit difficult to start with choose any of the other paths to learn the game
+Also i had no time to implement a game menu so the application needs to be restarted after a win/loss :(
+
+run the program usin ./gradlew run
