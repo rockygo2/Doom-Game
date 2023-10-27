@@ -16,6 +16,5 @@ SPACE : shoot
 ## Objective
 find and collect all the keys
 
-
-
-use this code as you see fit sorry for the shody coding :)
+## Advice
+The purple path directly infront of the player is a bit difficult to start with choose any of the other paths to learn the game
