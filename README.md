@@ -1,3 +1,7 @@
+## Game
+The game is a 3D shooter inspired from doom
+The engine type it uses is a 3D raycaster that uses blocks in order to measure distance
+
 ## CONTROLS
 A : turn left
 
