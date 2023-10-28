@@ -1,5 +1,5 @@
 ## Game
-This game is a 3D shooter inspired from olg doom games
+This game is a 3D shooter inspired from old doom games
 The engine type this program uses is a 3D raycaster that uses blocks in order to measure distance
 
 ## CONTROLS
