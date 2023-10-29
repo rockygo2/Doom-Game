@@ -31,74 +31,6 @@ class DoomGame extends PApplet{
       image(i.Image, i.PosX, i.PosY)
     }
   }
-  def drawRays(): Unit = {
-    Images.WallArr = Array()
-
-    val LineSize : Int = Miscellaneous.SCREEN_SIZE.toInt/Miscellaneous.NUM_RAYS
-    val RayScale : Double = Miscellaneous.FOV/Miscellaneous.NUM_RAYS.toDouble
-    val imgSizeCheck = 64 - LineSize
-    val halfRays = Miscellaneous.NUM_RAYS/2
-    for (i <- 0 until Miscellaneous.NUM_RAYS){
-      val RayAngle = Player.PlayerAngle - Miscellaneous.FOV/2 + i*RayScale
-      var RayDirX : Double = cos(toRadians(RayAngle))
-      var RayDirY : Double = sin(toRadians(RayAngle))
-      var CurrentBoxX : Int = Player.X.toInt/Miscellaneous.BOX_SIZE
-      var CurrentBoxY : Int = Player.Y.toInt/Miscellaneous.BOX_SIZE
-      var CurrentX: Double = Player.X/Miscellaneous.BOX_SIZE
-      var CurrentY: Double = Player.Y/Miscellaneous.BOX_SIZE
-      var isX : Boolean = false
-
-      var hit : Boolean = false
-
-      while(!hit){
-        val DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
-        val DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
-
-        if (RayDirX == 0) RayDirX = 0.00000000000000001
-        if (RayDirX == 0) RayDirY = 0.00000000000000001
-        val DistTimeTakenX = DistX / RayDirX
-        val DistTimeTakenY = DistY / RayDirY
-
-        if (abs(DistTimeTakenX) < abs(DistTimeTakenY)) {
-          CurrentX += DistTimeTakenX * RayDirX
-          CurrentY += DistTimeTakenX * RayDirY
-          if (RayDirX < 0) CurrentBoxX -= 1 else CurrentBoxX += 1
-          isX = true
-        }
-        else {
-          CurrentX += DistTimeTakenY * RayDirX
-          CurrentY += DistTimeTakenY * RayDirY
-          if (RayDirY < 0) CurrentBoxY -= 1 else CurrentBoxY += 1
-          isX = false
-        }
-
-        if (Miscellaneous.map(CurrentBoxX)(CurrentBoxY) > 0){
-          hit = true
-        }
-      }
-      //Fix FishEyeEffect
-      val depth: Double = math.cos(toRadians(Player.PlayerAngle - RayAngle))
-      val DistX : Double = Player.X - CurrentX*Miscellaneous.BOX_SIZE
-      val DistY : Double = Player.Y - CurrentY*Miscellaneous.BOX_SIZE
-      val WallDistance : Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
-      if(i == halfRays){
-        Player.WallDistanceShooting = WallDistance
-      }
-      val WallHeight = (Miscellaneous.SCREEN_SIZE/WallDistance) * 69/depth
-      val BoxNuM= Miscellaneous.map(CurrentBoxX)(CurrentBoxY)
-      var imageHeightY : Double = 64
-      val ImageYLocation = 0
-
-      if (imageHeightY <= 1) imageHeightY = 1
-      val ImageX = if (!isX) abs((CurrentX - CurrentBoxX) * imgSizeCheck) else abs((CurrentY - CurrentBoxY) * imgSizeCheck)
-      val croppedImg = Images.TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
-      croppedImg.resize(LineSize, WallHeight.toInt*2)
-
-      val input : Walls = new Walls(croppedImg , WallDistance.toFloat, (i*LineSize).toFloat, Miscellaneous.HALF_SCREEN_SIZE - WallHeight.toInt)
-      Images.WallArr = Images.WallArr :+ input
-    }
-  }
-
   def setBackground(): Unit = {
     fill(200, 200, 200)
     rect(0, Miscellaneous.HALF_SCREEN_SIZE, Miscellaneous.SCREEN_SIZE, Miscellaneous.HALF_SCREEN_SIZE)
@@ -129,6 +61,74 @@ class DoomGame extends PApplet{
           Images.WallArr = Images.WallArr :+ input
         }
       }
+    }
+  }
+
+  def drawRays(): Unit = {
+    Images.WallArr = Array()
+
+    val LineSize: Int = Miscellaneous.SCREEN_SIZE.toInt / Miscellaneous.NUM_RAYS
+    val RayScale: Double = Miscellaneous.FOV / Miscellaneous.NUM_RAYS.toDouble
+    val imgSizeCheck = 64 - LineSize
+    val halfRays = Miscellaneous.NUM_RAYS / 2
+    for (i <- 0 until Miscellaneous.NUM_RAYS) {
+      val RayAngle = Player.PlayerAngle - Miscellaneous.FOV / 2 + i * RayScale
+      var RayDirX: Double = cos(toRadians(RayAngle))
+      var RayDirY: Double = sin(toRadians(RayAngle))
+      var CurrentBoxX: Int = Player.X.toInt / Miscellaneous.BOX_SIZE
+      var CurrentBoxY: Int = Player.Y.toInt / Miscellaneous.BOX_SIZE
+      var CurrentX: Double = Player.X / Miscellaneous.BOX_SIZE
+      var CurrentY: Double = Player.Y / Miscellaneous.BOX_SIZE
+      var isX: Boolean = false
+
+      var hit: Boolean = false
+
+      while (!hit) {
+        val DistX: Double = if (RayDirX < 0) CurrentBoxX - CurrentX else 1 - (CurrentX - CurrentBoxX)
+        val DistY: Double = if (RayDirY < 0) CurrentBoxY - CurrentY else 1 - (CurrentY - CurrentBoxY)
+
+        if (RayDirX == 0) RayDirX = 0.00000000000000001
+        if (RayDirX == 0) RayDirY = 0.00000000000000001
+        val DistTimeTakenX = DistX / RayDirX
+        val DistTimeTakenY = DistY / RayDirY
+
+        if (abs(DistTimeTakenX) < abs(DistTimeTakenY)) {
+          CurrentX += DistTimeTakenX * RayDirX
+          CurrentY += DistTimeTakenX * RayDirY
+          if (RayDirX < 0) CurrentBoxX -= 1 else CurrentBoxX += 1
+          isX = true
+        }
+        else {
+          CurrentX += DistTimeTakenY * RayDirX
+          CurrentY += DistTimeTakenY * RayDirY
+          if (RayDirY < 0) CurrentBoxY -= 1 else CurrentBoxY += 1
+          isX = false
+        }
+
+        if (Miscellaneous.map(CurrentBoxX)(CurrentBoxY) > 0) {
+          hit = true
+        }
+      }
+      //Fix FishEyeEffect
+      val depth: Double = math.cos(toRadians(Player.PlayerAngle - RayAngle))
+      val DistX: Double = Player.X - CurrentX * Miscellaneous.BOX_SIZE
+      val DistY: Double = Player.Y - CurrentY * Miscellaneous.BOX_SIZE
+      val WallDistance: Double = sqrt(pow(DistX, 2) + pow(DistY, 2))
+      if (i == halfRays) {
+        Player.WallDistanceShooting = WallDistance
+      }
+      val WallHeight = (Miscellaneous.SCREEN_SIZE / WallDistance) * 69 / depth
+      val BoxNuM = Miscellaneous.map(CurrentBoxX)(CurrentBoxY)
+      var imageHeightY: Double = 64
+      val ImageYLocation = 0
+
+      if (imageHeightY <= 1) imageHeightY = 1
+      val ImageX = if (!isX) abs((CurrentX - CurrentBoxX) * imgSizeCheck) else abs((CurrentY - CurrentBoxY) * imgSizeCheck)
+      val croppedImg = Images.TexturesArr(BoxNuM).get(ImageX.toInt, ImageYLocation, LineSize, imageHeightY.toInt)
+      croppedImg.resize(LineSize, WallHeight.toInt * 2)
+
+      val input: Walls = new Walls(croppedImg, WallDistance.toFloat, (i * LineSize).toFloat, Miscellaneous.HALF_SCREEN_SIZE - WallHeight.toInt)
+      Images.WallArr = Images.WallArr :+ input
     }
   }
 
